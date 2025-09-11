@@ -1,0 +1,3 @@
+docker buildx build -t kashif004/jenkindocker .
+
+to start building docker image

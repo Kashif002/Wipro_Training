@@ -1,0 +1,61 @@
+Jenkins Pipeline - deployed on Docker hub  -- to automate your deployment , scaling and further more operations of application containers we use Kubernetes
+
+Kubernetes it is an open -source container orchestration platform designed to automate the deployment, scaling , here we have clusters of hosts.
+
+Keyterms :
+
+Cluster :  a set of machines (nodes) that run containerized application
+Node : A single machine in the cluster
+Pod:  the smallest deployable unit(one or more containers)
+service :  exposes  a set of pods to other parts of the application
+deployment : Manages the complete state , scaling , rollout
+Namespace : The partioning within the cluster
+
+there is a component which we call it as KEDA ( Kubernetes Event- Driven Autoscaling)
+for eg: a microservices and it is having messages from a queue(Kafka, RabbitMQ) it can be scale up when queue length grows or scale down when idle.
+
+so KEDA is an open source component that extends Kubernetes autoscaling capabilities.
+
+Monitors event sources like messages , notifications queues(Kafka ,RabbitMQ , Azure service Bus).
+It triggers autoscaling when the workload increases .
+
+
+Message:
+microservice : message  : --- storing to a database
+
+pizza delivery boy -- where you are tacking the locations are getting changes and updated so that client gets the updated location 
+
+We prefer some scripting technologies : ( UNIX , Python )
+To automate system tasks , backup , processmanagement  
+
+deployment strategies 
+BlueGreen 
+where downtime during deployments cannot be tolerated  B2C
+Blue  -- Not executed ( Some Issue)
+Green -- Success 
+Before rollingout it enables the testing 
+
+Canary Deployment 
+handles millions of user daily where progressive rollout and performance monitoring will be done .. Handling the pressure  or load ) Load Testing
+
+Rolling Update
+to operate the microservices - based application where frequent updates are required and downtime must be avoided 
+Any further updation , rollout regarding some patches  , small enhancements (GUI)
+
+Cloud provides different types of services
+
+1. SaaS -- Software as a service - Office 365, Gsuite ( Gmail , GoogleMeet , Classrooms)
+2. PaaS -- Platform as a service - You require a platform for building apps   -- Heroku , GCP ,AWS , Azure
+3. IaaS -- Infrastructure as a service -- virtual hardware resources  -- AWS EC2
+4. FaaS -- Function as a Service -- Servless Computing Google Cloud Functions , AWS Lambda
+
+To deploy applications we require :  Vms, Containers , Servless functions
+
+Cloud Networking : VPC , VPN
+
+Cloud Storage : MySQL , Sql Server   , Back up 
+
+Cloud Data  --- It will copy the data synchronously or asynchronously
+
+Data Encryption --- Like TLS / SSLS -- AWS KMS
+

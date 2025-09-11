@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="login-page">
+    <div id="alert-container"></div>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo">
+                    <i class="fas fa-university"></i>
+                    <h1>MyFin Bank</h1>
+                </div>
+                <h2>Admin Portal</h2>
+                <p>Secure access to your dashboard</p>
+            </div>
+            
+            <form id="login-form" method="POST">
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="form-control required" 
+                           placeholder="admin@myfinbank.com"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control required" 
+                           placeholder="Enter your password"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="remember"> Remember me
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>
+                    <a href="/register" class="text-primary">Don't have an account? Register here</a>
+                </p>
+                <p>
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </p>
+                <p class="text-muted">
+                    <small>© 2025 MyFin Bank. All rights reserved.</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load utilities first -->
+    <script src="/js/utils.js"></script>
+    <script src="/js/admin-main.js"></script>
+    
+    <!-- Simplified login handler with proper cookie handling -->
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Show loading state
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    credentials: 'same-origin' // Important for cookie handling
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store token in sessionStorage for AJAX calls
+                    if (result.token) {
+                        sessionStorage.setItem('adminToken', result.token);
+                    }
+                    
+                    AdminUtils.showAlert('success', 'Login successful! Redirecting...');
+                    
+                    // Use replace to avoid back button issues
+                    setTimeout(() => {
+                        window.location.replace('/admin/dashboard');
+                    }, 500); // Reduced delay
+                } else {
+                    AdminUtils.showAlert('danger', result.message || 'Invalid email or password');
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Dashboard';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                AdminUtils.showAlert('danger', 'Network error occurred. Please try again.');
+                console.error('Login error:', error);
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login to Dashboard';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

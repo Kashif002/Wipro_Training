@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History - MyFin Bank Admin</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/admin-security.js"></script>
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <div class="header-nav">
+                <a href="/admin/customers" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Customers
+                </a>
+            </div>
+            <h1>Transaction History</h1>
+            <p class="text-muted">Transaction history for Customer ID: <span th:text="${customerId}">123</span></p>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                <p class="mt-3">Loading transactions...</p>
+            </div>
+        </div>
+        
+        <!-- Error State -->
+        <div id="errorState" class="alert alert-danger" style="display: none;">
+            <h4><i class="fas fa-exclamation-triangle"></i> Error Loading Transactions</h4>
+            <p id="errorMessage">Failed to load transaction data.</p>
+            <button class="btn btn-primary" onclick="loadTransactions()">
+                <i class="fas fa-refresh"></i> Try Again
+            </button>
+        </div>
+        
+        <!-- Transaction Statistics -->
+        <div id="transactionStats" class="stats-grid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-icon transactions">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalTransactions">0</h3>
+                    <p>Total Transactions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon deposits">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalDeposits">0</h3>
+                    <p>Deposits</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon withdrawals">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalWithdrawals">0</h3>
+                    <p>Withdrawals</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon transfers">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalTransfers">0</h3>
+                    <p>Transfers</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div id="filtersSection" class="card" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">Filters</h3>
+            </div>
+            <div class="card-body">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="typeFilter">Transaction Type:</label>
+                        <select id="typeFilter" class="form-control">
+                            <option value="">All Types</option>
+                            <option value="DEPOSIT">Deposit</option>
+                            <option value="WITHDRAWAL">Withdrawal</option>
+                            <option value="TRANSFER">Transfer</option>
+                            <option value="LOAN_PAYMENT">Loan Payment</option>
+                            <option value="FD_INVESTMENT">FD Investment</option>
+                            <option value="RD_INVESTMENT">RD Investment</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="statusFilter">Status:</label>
+                        <select id="statusFilter" class="form-control">
+                            <option value="">All Statuses</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="FAILED">Failed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary" onclick="applyFilters()">
+                            <i class="fas fa-filter"></i> Apply Filters
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Transactions Table -->
+        <div id="transactionsSection" class="card" style="display: none;">
+            <div class="card-header">
+                <h3 class="card-title">Transaction History</h3>
+                <div class="card-actions">
+                    <button class="btn btn-success" onclick="exportTransactions()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="noTransactionsMessage" class="text-center" style="display: none;">
+                    <i class="fas fa-inbox fa-3x text-muted"></i>
+                    <h4 class="mt-3">No Transactions Found</h4>
+                    <p class="text-muted">This customer has no transaction history.</p>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-striped" id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>From Account</th>
+                                <th>To Account</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTableBody">
+                            <!-- Transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        let allTransactions = [];
+        let filteredTransactions = [];
+        let customerId = /*[[${customerId}]]*/ null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Customer ID from server:', customerId);
+            
+            // Fallback: try to get customer ID from URL if Thymeleaf variable is null
+            if (!customerId) {
+                const pathParts = window.location.pathname.split('/');
+                const customerIndex = pathParts.indexOf('customers');
+                if (customerIndex !== -1 && pathParts[customerIndex + 1]) {
+                    customerId = pathParts[customerIndex + 1];
+                    console.log('Customer ID from URL:', customerId);
+                }
+            }
+            
+            if (!customerId) {
+                showError('Customer ID not provided');
+                return;
+            }
+            loadTransactions();
+        });
+        
+        function loadTransactions() {
+            showLoading();
+            
+            fetch(`/admin/customers/api/${customerId}/transactions`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        allTransactions = data.transactions || [];
+                        filteredTransactions = [...allTransactions];
+                        displayTransactions();
+                        updateStatistics();
+                        showContent();
+                    } else {
+                        showError(data.error || 'Failed to load transactions');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('An error occurred while fetching transactions.');
+                });
+        }
+        
+        function displayTransactions() {
+            const tbody = document.getElementById('transactionsTableBody');
+            tbody.innerHTML = '';
+            
+            if (filteredTransactions.length === 0) {
+                document.getElementById('noTransactionsMessage').style.display = 'block';
+                document.getElementById('transactionsTable').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('noTransactionsMessage').style.display = 'none';
+            document.getElementById('transactionsTable').style.display = 'table';
+            
+            filteredTransactions.forEach(txn => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><code>${txn.transactionId || 'N/A'}</code></td>
+                    <td><span class="badge badge-${getTypeBadgeClass(txn.type)}">${txn.type || 'N/A'}</span></td>
+                    <td><strong>₹${formatAmount(txn.amount)}</strong></td>
+                    <td>${txn.fromAccount || '-'}</td>
+                    <td>${txn.toAccount || '-'}</td>
+                    <td>${txn.description || 'N/A'}</td>
+                    <td><span class="badge badge-${getStatusBadgeClass(txn.status)}">${txn.status || 'N/A'}</span></td>
+                    <td>${formatDate(txn.createdAt)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updateStatistics() {
+            const stats = {
+                total: allTransactions.length,
+                deposits: allTransactions.filter(t => t.type === 'DEPOSIT').length,
+                withdrawals: allTransactions.filter(t => t.type === 'WITHDRAWAL').length,
+                transfers: allTransactions.filter(t => t.type === 'TRANSFER').length
+            };
+            
+            document.getElementById('totalTransactions').textContent = stats.total;
+            document.getElementById('totalDeposits').textContent = stats.deposits;
+            document.getElementById('totalWithdrawals').textContent = stats.withdrawals;
+            document.getElementById('totalTransfers').textContent = stats.transfers;
+        }
+        
+        function applyFilters() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredTransactions = allTransactions.filter(txn => {
+                const typeMatch = !typeFilter || txn.type === typeFilter;
+                const statusMatch = !statusFilter || txn.status === statusFilter;
+                return typeMatch && statusMatch;
+            });
+            
+            displayTransactions();
+        }
+        
+        function clearFilters() {
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            filteredTransactions = [...allTransactions];
+            displayTransactions();
+        }
+        
+        function exportTransactions() {
+            const table = document.getElementById('transactionsTable');
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Transactions"});
+            XLSX.writeFile(wb, `transactions_customer_${customerId}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+        
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('transactionStats').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('transactionsSection').style.display = 'none';
+        }
+        
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('transactionStats').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('transactionsSection').style.display = 'none';
+        }
+        
+        function showContent() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('transactionStats').style.display = 'grid';
+            document.getElementById('filtersSection').style.display = 'block';
+            document.getElementById('transactionsSection').style.display = 'block';
+        }
+        
+        function getTypeBadgeClass(type) {
+            switch(type) {
+                case 'DEPOSIT': return 'success';
+                case 'WITHDRAWAL': return 'warning';
+                case 'TRANSFER': return 'info';
+                case 'LOAN_PAYMENT': return 'primary';
+                case 'FD_INVESTMENT': return 'secondary';
+                case 'RD_INVESTMENT': return 'secondary';
+                default: return 'light';
+            }
+        }
+        
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'COMPLETED': return 'success';
+                case 'PENDING': return 'warning';
+                case 'FAILED': return 'danger';
+                case 'CANCELLED': return 'secondary';
+                default: return 'light';
+            }
+        }
+        
+        function formatAmount(amount) {
+            if (!amount) return '0.00';
+            return parseFloat(amount).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('en-IN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+    
+    <!-- Include XLSX library for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-icon.transactions { background-color: #007bff; }
+        .stat-icon.deposits { background-color: #28a745; }
+        .stat-icon.withdrawals { background-color: #ffc107; }
+        .stat-icon.transfers { background-color: #17a2b8; }
+        
+        .stat-content h3 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-content p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .badge-success { background-color: #28a745; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-info { background-color: #17a2b8; }
+        .badge-primary { background-color: #007bff; }
+        .badge-secondary { background-color: #6c757d; }
+        .badge-danger { background-color: #dc3545; }
+        .badge-light { background-color: #f8f9fa; color: #212529; }
+        
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .header-nav {
+                flex-direction: column;
+            }
+        }
+    </style>
+    
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

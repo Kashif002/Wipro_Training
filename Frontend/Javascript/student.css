@@ -1,0 +1,77 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: rgb(118, 235, 235);
+    padding-bottom: 60px;
+}
+
+#output {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#output h4 {
+    color: #0d6efd;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #069df5;
+  padding: 10px 50px;
+}
+.timer{
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.logo-title{
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+  height: 80px;
+  width:80px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.school-title
+{
+    font-size: 25px;
+    font-weight: bold;
+    margin: 0;
+}
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links li a {
+  color: #003366;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#todo1{
+    display: flex;
+    justify-content: center;
+}
+#todo2{
+    display: flex;
+    justify-content: center;
+    white-space: 20px;
+}
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}

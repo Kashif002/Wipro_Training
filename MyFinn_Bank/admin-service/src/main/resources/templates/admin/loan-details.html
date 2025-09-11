@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Loan Details - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/admin-security.js"></script>
+    
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans" class="active">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <h1>Loan Application Details</h1>
+            <a href="/admin/loans" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Loans
+            </a>
+        </div>
+        
+        <!-- Loan Information -->
+        <div th:if="${loan}">
+            <!-- Main Loan Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Loan Application Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Loan ID:</strong> <span th:text="${loan.loanId}">1</span></p>
+                            <p><strong>Customer:</strong> <span th:text="${loan.customerName}">John Doe</span></p>
+                            <p><strong>Email:</strong> <span th:text="${loan.customerEmail}">john@example.com</span></p>
+                            <p><strong>Loan Amount:</strong> ₹<span th:text="${#numbers.formatDecimal(loan.loanAmount, 0, 2)}">0.00</span></p>
+                            <p><strong>Loan Type:</strong> <span th:text="${loan.loanType}">Personal</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Interest Rate:</strong> <span th:text="${loan.interestRate}">0</span>%</p>
+                            <p><strong>Term:</strong> <span th:text="${loan.termMonths}">0</span> months</p>
+                            <p><strong>Purpose:</strong> <span th:text="${loan.purpose}">Home renovation</span></p>
+                            <p><strong>Monthly Income:</strong> ₹<span th:text="${#numbers.formatDecimal(loan.monthlyIncome, 0, 2)}">0.00</span></p>
+                            <p><strong>Status:</strong> 
+                                <span th:if="${loan.status == 'PENDING'}" class="badge badge-warning">Pending</span>
+                                <span th:if="${loan.status == 'APPROVED'}" class="badge badge-success">Approved</span>
+                                <span th:if="${loan.status == 'REJECTED'}" class="badge badge-danger">Rejected</span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p><strong>Employment Details:</strong></p>
+                            <p th:text="${loan.employmentDetails}">Employment information</p>
+                            
+                            <p><strong>Application Date:</strong> <span th:text="${loan.createdDate}">2025-01-01</span></p>
+                            
+                            <div th:if="${loan.remarks}">
+                                <p><strong>Admin Remarks:</strong></p>
+                                <p th:text="${loan.remarks}">Admin remarks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UPDATED: Simplified Loan Calculation Only -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Loan Calculation Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="calculation-section">
+                                <h5><i class="fas fa-calculator"></i> Loan Parameters</h5>
+                                <p><strong>Principal Amount:</strong> ₹<span th:text="${#numbers.formatDecimal(loan.loanAmount, 0, 2)}">0.00</span></p>
+                                <p><strong>Interest Rate:</strong> <span th:text="${loan.interestRate}">0</span>% per annum</p>
+                                <p><strong>Loan Term:</strong> <span th:text="${loan.termMonths}">0</span> months</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="calculation-results">
+                                <h5><i class="fas fa-chart-line"></i> Payment Summary</h5>
+                                <p><strong>Monthly EMI:</strong> ₹<span id="monthlyEMI" class="highlight-amount">Calculating...</span></p>
+                                <p><strong>Total Interest:</strong> ₹<span id="totalInterest" class="highlight-amount">Calculating...</span></p>
+                                <p><strong>Total Amount Payable:</strong> ₹<span id="totalAmount" class="highlight-amount">Calculating...</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Loan Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="actions-section">
+                        <div th:if="${loan.status == 'PENDING'}">
+                            <button class="btn btn-success" th:onclick="'approveLoan(' + ${loan.loanId} + ')'">
+                                <i class="fas fa-check"></i> Approve Loan
+                            </button>
+                            
+                            <button class="btn btn-danger" th:onclick="'rejectLoan(' + ${loan.loanId} + ')'">
+                                <i class="fas fa-times"></i> Reject Loan
+                            </button>
+                        </div>
+                        
+                        <div th:unless="${loan.status == 'PENDING'}">
+                            <p class="text-muted">This loan has already been processed.</p>
+                        </div>
+                        
+                        <button class="btn btn-info" th:onclick="'viewCustomer(' + ${loan.customerId} + ')'">
+                            <i class="fas fa-user"></i> View Customer Details
+                        </button>
+                        
+                        <!-- UPDATED: Only Print Button -->
+                        <button class="btn btn-secondary" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Show error if loan not found -->
+        <div th:unless="${loan}" class="alert alert-danger">
+            <h4>Loan Not Found</h4>
+            <p>The requested loan application could not be found.</p>
+            <a href="/admin/loans" class="btn btn-primary">Back to Loans</a>
+        </div>
+    </main>
+    
+    <script th:if="${loan}">
+        // Calculate EMI when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const principal = parseFloat('[[${loan.loanAmount}]]');
+            const annualRate = parseFloat('[[${loan.interestRate}]]');
+            const termMonths = parseInt('[[${loan.termMonths}]]');
+            
+            if (principal > 0 && annualRate > 0 && termMonths > 0) {
+                calculateEMI(principal, annualRate, termMonths);
+            } else {
+                document.getElementById('monthlyEMI').textContent = 'N/A';
+                document.getElementById('totalInterest').textContent = 'N/A';
+                document.getElementById('totalAmount').textContent = 'N/A';
+            }
+        });
+        
+        function calculateEMI(principal, annualRate, termMonths) {
+            const monthlyRate = (annualRate / 100) / 12;
+            const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
+                       (Math.pow(1 + monthlyRate, termMonths) - 1);
+            const totalAmount = emi * termMonths;
+            const totalInterest = totalAmount - principal;
+            
+            document.getElementById('monthlyEMI').textContent = emi.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            document.getElementById('totalInterest').textContent = totalInterest.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            document.getElementById('totalAmount').textContent = totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2});
+        }
+        
+        function approveLoan(loanId) {
+            const remarks = prompt('Enter approval remarks (optional):') || 'Loan approved by admin';
+            if (confirm('Are you sure you want to approve this loan?')) {
+                fetch(`/admin/loans/api/approve/${loanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ remarks: remarks })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Loan approved successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving the loan.');
+                });
+            }
+        }
+        
+        function rejectLoan(loanId) {
+            const remarks = prompt('Enter rejection reason:');
+            if (remarks && confirm('Are you sure you want to reject this loan?')) {
+                fetch(`/admin/loans/api/reject/${loanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ remarks: remarks })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Loan rejected successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while rejecting the loan.');
+                });
+            }
+        }
+        
+        function viewCustomer(customerId) {
+            window.location.href = `/admin/customers/${customerId}`;
+        }
+    </script>
+    
+    <style>
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -0.5rem;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0.5rem;
+        }
+        
+        .col-md-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0.5rem;
+        }
+        
+        .calculation-section, .calculation-results {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            height: 100%;
+        }
+        
+        .calculation-results {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        }
+        
+        .highlight-amount {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .actions-section {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .col-md-6, .col-md-12 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .actions-section {
+                flex-direction: column;
+            }
+            
+            .actions-section .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        @media print {
+            .admin-header, .dashboard-header .btn, .actions-section {
+                display: none;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

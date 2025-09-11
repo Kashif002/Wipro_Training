@@ -1,0 +1,33 @@
+# Eclipse metadata
+.metadata/
+*.log
+
+# SonarLint temporary files
+.sonarlint/
+
+# Build directories
+bin/
+target/
+build/
+
+# IDE files
+*.class
+*.jar
+*.war
+*.ear
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Long path files that cause issues on Windows
+**/bridge-bundle/package/licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-safari-id-destructuring-collision-in-function-expression-MIT.txt

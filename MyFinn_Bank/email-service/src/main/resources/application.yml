@@ -1,0 +1,32 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: email-service
+  profiles:
+    active: dev
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
+    home-page-url: http://localhost:8083/swagger-ui/index.html
+    status-page-url: http://localhost:8083/swagger-ui/index.html
+    health-check-url: http://localhost:8083/actuator/health
+
+logging:
+  level:
+    com.myfinbank: DEBUG
+    org.springframework.mail: DEBUG
+
+springdoc:
+    api-docs:
+      path: /v3/api-docs
+    swagger-ui:
+      path: /swagger-ui.html

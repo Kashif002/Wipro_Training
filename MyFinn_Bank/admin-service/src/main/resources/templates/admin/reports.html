@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/admin-security.js"></script>
+    
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports" class="active">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <h1>Reports & Analytics</h1>
+            <p class="text-muted">View comprehensive reports and analytics</p>
+        </div>
+        
+        <!-- Quick Statistics on Top -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon customers">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalCustomersCount">0</h3>
+                    <p>Total Customers</p>
+                    <small class="stat-change">
+                        <span id="activeCustomersCount">0</span> active
+                    </small>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon loans">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="pendingLoansCount">0</h3>
+                    <p>Pending Loans</p>
+                    <small class="stat-change">
+                        Need review
+                    </small>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon approved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="approvedLoansCount">0</h3>
+                    <p>Approved Loans</p>
+                    <small class="stat-change">
+                        Total processed
+                    </small>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon messages">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalApplicationsCount">0</h3>
+                    <p>Total Applications</p>
+                    <small class="stat-change">
+                        All time
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Always Display Customer Reports First -->
+        <div class="report-display">
+            <!-- Customer Reports Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users text-primary"></i> Customer Reports
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-success btn-sm" onclick="exportCustomerReport()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="refreshCustomerReports()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="customerReportContent">
+                        <div class="report-loading">
+                            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                            <p>Loading customer reports...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loan Reports Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-file-invoice-dollar text-warning"></i> Loan Reports
+                    </h3>
+                    <div class="card-actions">
+                        <button class="btn btn-success btn-sm" onclick="exportLoanReport()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="refreshLoanReports()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="loanReportContent">
+                        <div class="report-loading">
+                            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                            <p>Loading loan reports...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Always load both customer and loan reports on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadQuickStats();
+            loadCustomerReports();
+            setTimeout(loadLoanReports, 500);
+        });
+        
+        function loadQuickStats() {
+            fetch('/admin/customers/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalCustomersCount').textContent = data.totalCustomers || 0;
+                document.getElementById('activeCustomersCount').textContent = data.activeCustomers || 0;
+            })
+            .catch(error => {
+                console.error('Error loading customer stats:', error);
+            });
+            
+            fetch('/admin/loans/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('pendingLoansCount').textContent = data.pendingLoans || 0;
+                document.getElementById('approvedLoansCount').textContent = data.approvedLoans || 0;
+                document.getElementById('totalApplicationsCount').textContent = data.totalApplications || 0;
+            })
+            .catch(error => {
+                console.error('Error loading loan stats:', error);
+            });
+        }
+        
+        // UPDATED: Dynamic Progress Bar Function
+        function createDynamicProgressBar(percentage) {
+            const barClass = percentage >= 100 ? 'progress-bar-full' : 'progress-bar-partial';
+            const width = Math.min(percentage, 100);
+            
+            return `
+                <div class="progress-item">
+                    <label>Active Rate</label>
+                    <div class="progress">
+                        <div class="progress-bar ${barClass}" style="width: ${width}%"></div>
+                    </div>
+                    <span class="percentage-text">${percentage}%</span>
+                </div>
+            `;
+        }
+        
+        // Customer Reports with Dynamic Progress Bar
+        function loadCustomerReports() {
+            document.getElementById('customerReportContent').innerHTML = `
+                <div class="report-loading">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                    <p>Loading customer reports...</p>
+                </div>
+            `;
+            
+            fetch('/admin/customers/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                const activeRate = data.totalCustomers > 0 ? Math.round(data.activeCustomers / data.totalCustomers * 100) : 0;
+                
+                document.getElementById('customerReportContent').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="report-section">
+                                <h5><i class="fas fa-users text-primary"></i> Customer Overview</h5>
+                                <div class="stats-summary">
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.totalCustomers || 0}</span>
+                                        <span class="stat-label">Total Customers</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.activeCustomers || 0}</span>
+                                        <span class="stat-label">Active Customers</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.inactiveCustomers || 0}</span>
+                                        <span class="stat-label">Inactive Customers</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="report-section">
+                                <h5><i class="fas fa-chart-pie text-success"></i> Customer Activity</h5>
+                                <div class="activity-chart">
+                                    ${createDynamicProgressBar(activeRate)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('customerReportContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading customer reports: ${error.message}
+                    </div>
+                `;
+            });
+        }
+        
+        function loadLoanReports() {
+            document.getElementById('loanReportContent').innerHTML = `
+                <div class="report-loading">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                    <p>Loading loan reports...</p>
+                </div>
+            `;
+            
+            fetch('/admin/loans/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                const totalLoans = (data.pendingLoans || 0) + (data.approvedLoans || 0) + (data.rejectedLoans || 0);
+                
+                document.getElementById('loanReportContent').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="report-section">
+                                <h5><i class="fas fa-file-invoice-dollar text-primary"></i> Loan Overview</h5>
+                                <div class="stats-summary">
+                                    <div class="stat-item">
+                                        <span class="stat-value">${totalLoans}</span>
+                                        <span class="stat-label">Total Applications</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.pendingLoans || 0}</span>
+                                        <span class="stat-label">Pending</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.approvedLoans || 0}</span>
+                                        <span class="stat-label">Approved</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-value">${data.rejectedLoans || 0}</span>
+                                        <span class="stat-label">Rejected</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="report-section">
+                                <h5><i class="fas fa-chart-line text-info"></i> Loan Performance</h5>
+                                <div class="performance-summary">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="performance-card">
+                                                <h6>Processing Efficiency</h6>
+                                                <div class="big-number">${totalLoans > 0 ? Math.round((data.approvedLoans + data.rejectedLoans) / totalLoans * 100) : 0}%</div>
+                                                <small class="text-muted">Applications processed</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="performance-card">
+                                                <h6>Pending Queue</h6>
+                                                <div class="big-number">${data.pendingLoans || 0}</div>
+                                                <small class="text-muted">Awaiting review</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="performance-card">
+                                                <h6>Success Rate</h6>
+                                                <div class="big-number">${totalLoans > 0 && (data.approvedLoans + data.rejectedLoans) > 0 ? Math.round(data.approvedLoans / (data.approvedLoans + data.rejectedLoans) * 100) : 0}%</div>
+                                                <small class="text-muted">Of processed applications</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                document.getElementById('loanReportContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading loan reports: ${error.message}
+                    </div>
+                `;
+            });
+        }
+        
+        function refreshCustomerReports() {
+            loadCustomerReports();
+        }
+        
+        function refreshLoanReports() {
+            loadLoanReports();
+        }
+        
+        // Export functions remain the same...
+        function exportCustomerReport() {
+            fetch('/admin/customers/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                const wb = XLSX.utils.book_new();
+                const customerData = [
+                    ['Customer Reports', '', '', ''],
+                    ['', '', '', ''],
+                    ['Metric', 'Value', '', ''],
+                    ['Total Customers', data.totalCustomers || 0, '', ''],
+                    ['Active Customers', data.activeCustomers || 0, '', ''],
+                    ['Inactive Customers', data.inactiveCustomers || 0, '', ''],
+                    ['', '', '', ''],
+                    ['Active Rate', data.totalCustomers > 0 ? Math.round(data.activeCustomers / data.totalCustomers * 100) + '%' : '0%', '', ''],
+                    ['', '', '', ''],
+                    ['Generated Date', new Date().toLocaleDateString(), '', '']
+                ];
+                
+                const ws = XLSX.utils.aoa_to_sheet(customerData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Customer Report');
+                XLSX.writeFile(wb, `Customer_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+                showNotification('Customer report exported successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Export error:', error);
+                showNotification('Error exporting customer report', 'error');
+            });
+        }
+        
+        function exportLoanReport() {
+            fetch('/admin/loans/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                const totalLoans = (data.pendingLoans || 0) + (data.approvedLoans || 0) + (data.rejectedLoans || 0);
+                const wb = XLSX.utils.book_new();
+                const loanData = [
+                    ['Loan Reports', '', '', ''],
+                    ['', '', '', ''],
+                    ['Loan Overview', '', '', ''],
+                    ['Metric', 'Value', '', ''],
+                    ['Total Applications', totalLoans, '', ''],
+                    ['Pending', data.pendingLoans || 0, '', ''],
+                    ['Approved', data.approvedLoans || 0, '', ''],
+                    ['Rejected', data.rejectedLoans || 0, '', ''],
+                    ['', '', '', ''],
+                    ['Loan Performance', '', '', ''],
+                    ['Processing Efficiency', totalLoans > 0 ? Math.round((data.approvedLoans + data.rejectedLoans) / totalLoans * 100) + '%' : '0%', '', ''],
+                    ['Pending Queue', data.pendingLoans || 0, '', ''],
+                    ['Success Rate', totalLoans > 0 && (data.approvedLoans + data.rejectedLoans) > 0 ? Math.round(data.approvedLoans / (data.approvedLoans + data.rejectedLoans) * 100) + '%' : '0%', '', ''],
+                    ['', '', '', ''],
+                    ['Generated Date', new Date().toLocaleDateString(), '', '']
+                ];
+                
+                const ws = XLSX.utils.aoa_to_sheet(loanData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Loan Report');
+                XLSX.writeFile(wb, `Loan_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+                showNotification('Loan report exported successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Export error:', error);
+                showNotification('Error exporting loan report', 'error');
+            });
+        }
+        
+        function showNotification(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+    </script>
+    
+    <!-- Include XLSX library for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        .report-display {
+            margin-top: 2rem;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -0.5rem;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0.5rem;
+        }
+        
+        .col-md-4 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+            padding: 0.5rem;
+        }
+        
+        .col-md-12 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding: 0.5rem;
+        }
+        
+        .report-loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .report-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            height: 100%;
+        }
+        
+        .stats-summary {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            display: block;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        /* UPDATED: Dynamic Progress Bar Styles */
+        .progress-item {
+            margin-bottom: 1rem;
+        }
+        
+        .progress {
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        /* Full bar at 100% - Solid vibrant green */
+        .progress-bar-full {
+            height: 100%;
+            background: #4caf50;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        
+        /* Partial bar for < 100% - Gradient colors */
+        .progress-bar-partial {
+            height: 100%;
+            background: linear-gradient(90deg, #81c784 0%, #66bb6a 50%, #4caf50 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+            position: relative;
+        }
+        
+        /* Animated stripes for 100% completion */
+        @keyframes slide {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 20px; }
+        }
+        
+        .progress-bar-full {
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 5px,
+                rgba(255,255,255,0.1) 5px,
+                rgba(255,255,255,0.1) 10px
+            );
+        }
+        
+        .percentage-text {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .activity-chart label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .performance-summary {
+            margin-top: 1rem;
+        }
+        
+        .performance-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        
+        .performance-card h6 {
+            margin-bottom: 1rem;
+            color: var(--dark-text);
+        }
+        
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 2rem;
+        }
+        
+        .my-4 {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .col-md-6, .col-md-4, .col-md-12 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .stats-summary {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

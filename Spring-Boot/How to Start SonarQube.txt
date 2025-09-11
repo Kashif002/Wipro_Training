@@ -1,0 +1,13 @@
+1) Uninstall the jdk version if it is higher than 21 
+2) use either jdk 17 or jdk 21 version only and also set the bin path in environment variables
+3) download the SonarQube community version (free version) . Once it is downloaded
+then start the startsonar.batch file
+4)once it is started then open the http://localhost:9000 on browser with default admin as a username and password(it will ask to change the password) 
+5) create a project , give a project name,  key name and branch as main then click on create
+6)select global settings  then click create
+\
+7) generate a token after clicking on generate option
+8) install sonar scanner , after unzipping the folder go to conf folder and uncomment the line no: 5 and change the url as http://localhost:9000
+9) take the bin path and set in environment variables window
+10)open the command prompt and check with the given commands sonar-scanner -h, or sonar-scanner.bat -h if it is working then it is correctly installed
+11)then open any existing maven or java project and paste the command given on SonarQube server which you have opened on browser

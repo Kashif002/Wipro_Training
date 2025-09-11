@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Customer Management - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/admin-security.js"></script>
+    
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers" class="active">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <h1>Customer Management</h1>
+            <p class="text-muted">Manage and monitor all customer accounts</p>
+        </div>
+        
+        <!-- Search and Export Section -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Customer Controls</h3>
+            </div>
+            <div class="card-body">
+                <div class="customer-controls">
+                    <div class="search-section">
+                        <input type="text" id="searchInput" placeholder="Search customers by name or email..." class="form-control search-input">
+                        <button class="btn btn-primary" onclick="searchCustomers()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearSearch()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="export-section">
+                        <!-- UPDATED: Only Excel Export -->
+                        <button class="btn btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Export to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Show error message if data loading failed -->
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}">Error loading customers</span>
+        </div>
+        
+        <!-- Customer Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon customers">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 th:text="${customers != null ? customers.size() : 0}">0</h3>
+                    <p>Total Customers</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customers Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">All Customers</h3>
+            </div>
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(customers)}">
+                    <p class="text-muted">No customers found.</p>
+                </div>
+                <div th:unless="${#lists.isEmpty(customers)}">
+                    <div class="table-responsive">
+                        <table class="table" id="customersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Status</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody">
+                                <tr th:each="customer : ${customers}">
+                                    <td th:text="${customer.customerId}">1</td>
+                                    <td th:text="${customer.firstName + ' ' + customer.lastName}">John Doe</td>
+                                    <td th:text="${customer.email}">john@example.com</td>
+                                    <td th:text="${customer.phoneNumber != null ? customer.phoneNumber : 'N/A'}">1234567890</td>
+                                    <td th:text="${customer.address != null ? customer.address : 'N/A'}">123 Main St</td>
+                                    <td>
+                                        <span th:if="${customer.isActive}" class="badge badge-success">Active</span>
+                                        <span th:unless="${customer.isActive}" class="badge badge-danger">Inactive</span>
+                                    </td>
+                                    <td th:text="${customer.createdAt != null ? #temporals.format(customer.createdAt, 'yyyy-MM-dd') : (customer.createdDate != null ? customer.createdDate : 'N/A')}">2025-01-01</td>
+                                    <td>
+                                        <a th:href="@{/admin/customers/{id}(id=${customer.id})}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <button class="btn btn-warning btn-sm" th:onclick="'toggleStatus(' + ${customer.id} + ')'">
+                                            <i class="fas fa-toggle-on" th:if="${customer.isActive}"></i>
+                                            <i class="fas fa-toggle-off" th:unless="${customer.isActive}"></i>
+                                            <span th:text="${customer.isActive ? 'Deactivate' : 'Activate'}">Toggle</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        let allCustomers = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableRows = document.querySelectorAll('#customersTableBody tr');
+            allCustomers = Array.from(tableRows).map(row => {
+                const cells = row.querySelectorAll('td');
+                return {
+                    id: cells[0].textContent,
+                    name: cells[1].textContent,
+                    email: cells[2].textContent,
+                    phone: cells[3].textContent,
+                    address: cells[4].textContent,
+                    status: cells[5].textContent.trim(),
+                    registered: cells[6].textContent,
+                    row: row
+                };
+            });
+        });
+        
+        function searchCustomers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                clearSearch();
+                return;
+            }
+            
+            fetch(`/admin/customers/api/search?keyword=${encodeURIComponent(searchTerm)}`)
+            .then(response => response.json())
+            .then(customers => {
+                updateCustomersTable(customers);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                const filteredCustomers = allCustomers.filter(customer =>
+                    customer.name.toLowerCase().includes(searchTerm) ||
+                    customer.email.toLowerCase().includes(searchTerm) ||
+                    customer.phone.includes(searchTerm)
+                );
+                displayFilteredCustomers(filteredCustomers);
+            });
+        }
+        
+        function updateCustomersTable(customers) {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+            
+            customers.forEach(customer => {
+                const row = document.createElement('tr');
+                const customerId = customer.customerId;
+                const createdDate = customer.createdDate || 'N/A';
+                const isActive = customer.isActive || customer.active;
+                row.innerHTML = `
+                    <td>${customerId}</td>
+                    <td>${customer.firstName} ${customer.lastName}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.phoneNumber || 'N/A'}</td>
+                    <td>${customer.address || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
+                            ${isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>${createdDate}</td>
+                    <td>
+                        <a href="/admin/customers/${customer.id}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        <button class="btn btn-warning btn-sm" onclick="toggleStatus(${customer.id})">
+                            <i class="fas fa-toggle-${isActive ? 'on' : 'off'}"></i>
+                            ${isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function displayFilteredCustomers(filteredCustomers) {
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+            
+            filteredCustomers.forEach(customer => {
+                tbody.appendChild(customer.row.cloneNode(true));
+            });
+        }
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const tbody = document.getElementById('customersTableBody');
+            tbody.innerHTML = '';
+            
+            allCustomers.forEach(customer => {
+                tbody.appendChild(customer.row.cloneNode(true));
+            });
+        }
+        
+        // UPDATED: Only Excel Export Function
+        function exportToExcel() {
+            const table = document.getElementById('customersTable');
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Customers"});
+            XLSX.writeFile(wb, `customers_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+        
+        function viewDetails(customerId) {
+            // Navigate to the customer details page
+            window.location.href = `/admin/customers/${customerId}`;
+        }
+        
+        function toggleStatus(customerId) {
+            if (confirm('Are you sure you want to change this customer\'s status?')) {
+                fetch(`/admin/customers/api/${customerId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating customer status.');
+                });
+            }
+        }
+        
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchCustomers();
+            }
+        });
+    </script>
+    
+    <!-- Include API Utils -->
+    <script src="/js/utils.js"></script>
+    
+    <!-- Include XLSX library for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        .customer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .search-input {
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .export-section {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .customer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-section {
+                min-width: 100%;
+            }
+            
+            .export-section {
+                justify-content: center;
+            }
+            
+            .table {
+                font-size: 0.875rem;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.4rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

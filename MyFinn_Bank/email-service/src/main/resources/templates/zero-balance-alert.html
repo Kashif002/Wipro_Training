@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Balance Alert - MyFin Bank</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .alert-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .alert-message {
+            text-align: center;
+            font-size: 24px;
+            color: #f59e0b;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        .account-info {
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .balance-display {
+            font-size: 36px;
+            color: #dc2626;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        .account-number {
+            color: #6b7280;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .consequences {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .consequences h3 {
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+        .consequence-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #374151;
+        }
+        .consequence-icon {
+            color: #ef4444;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .action-steps {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .action-steps h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        .action-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .action-icon {
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .cta-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .cta-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        .cta-secondary {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        .emergency-contact {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="alert-icon">⚠️</div>
+            <h1>Account Balance Alert</h1>
+            <p>Immediate attention required</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="alert-message">
+                ⚡ Balance Alert for <span th:text="${customerName}">Customer</span>
+            </div>
+            
+            <p style="text-align: center; font-size: 18px; color: #374151; margin-bottom: 25px;">
+                We noticed that your account balance has reached a critical low level.
+            </p>
+            
+            <!-- Account Info -->
+            <div class="account-info">
+			    <h3 style="color: #f59e0b; margin: 0;">Account Balance</h3>
+			    <div class="balance-display">₹0.00</div>
+			    <div class="account-number">
+			        Account Info: <span th:text="${accountNumber}">****1234</span>
+			    </div>
+			</div>
+			            
+            
+            <!-- Consequences -->
+            <div class="consequences">
+                <h3>🚨 Potential Consequences</h3>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">❌</span>
+                    <span>Pending transactions may fail or bounce</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">💰</span>
+                    <span>Overdraft charges may apply (₹500 per transaction)</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">🔒</span>
+                    <span>Account services may be temporarily restricted</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">📊</span>
+                    <span>Credit score may be impacted if EMIs bounce</span>
+                </div>
+            </div>
+            
+            <!-- Action Steps -->
+            <div class="action-steps">
+                <h3>💡 Immediate Actions Required</h3>
+                
+                <div class="action-item">
+                    <div class="action-icon">1</div>
+                    <div>
+                        <strong>Add Funds Immediately</strong><br>
+                        <small>Transfer money via mobile app, UPI, or visit nearest branch</small>
+                    </div>
+                </div>
+                
+                <div class="action-item">
+                    <div class="action-icon">2</div>
+                    <div>
+                        <strong>Review Pending Transactions</strong><br>
+                        <small>Check for any scheduled payments or EMIs due</small>
+                    </div>
+                </div>
+                
+                <div class="action-item">
+                    <div class="action-icon">3</div>
+                    <div>
+                        <strong>Set Up Balance Alerts</strong><br>
+                        <small>Configure SMS/email alerts for minimum balance warnings</small>
+                    </div>
+                </div>
+                
+                <div class="action-item">
+                    <div class="action-icon">4</div>
+                    <div>
+                        <strong>Consider Overdraft Protection</strong><br>
+                        <small>Protect against future bounce charges with our overdraft facility</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="cta-buttons">
+                <a href="#" class="cta-button cta-primary">💳 Add Funds Now</a>
+                <a href="#" class="cta-button cta-secondary">📱 Open Mobile App</a>
+            </div>
+            
+            <!-- Emergency Contact -->
+            <div class="emergency-contact">
+                <h4 style="margin: 0 0 10px 0;">🆘 Need Immediate Help?</h4>
+                <p style="margin: 5px 0;">Call our 24/7 Customer Care: <strong>1-800-MYFIN</strong></p>
+                <p style="margin: 5px 0; font-size: 12px;">Available for instant fund transfers and account assistance</p>
+            </div>
+            
+            <div style="background: #e0f2fe; border: 1px solid #0284c7; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <p style="margin: 0; color: #0f4880; text-align: center;">
+                    <strong>💡 Pro Tip:</strong> Set up automatic transfers from your savings account to avoid future zero balance situations.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>MyFin Bank</strong></p>
+            <p>123 Banking Street, Financial District, City 12345</p>
+            <p>24/7 Customer Care: 1-800-MYFIN | Email: support@myfinbank.com</p>
+            
+            <p style="margin-top: 20px;">
+                <small>
+                    This is an automated alert sent to <span th:text="${customerName}">you</span>. 
+                    For account security reasons, please verify your identity when calling.
+                </small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

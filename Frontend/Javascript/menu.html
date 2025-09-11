@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Restaurant Menu Management</title>
+  <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+
+  <h2>Restaurant Menu Management</h2>
+
+  <form id="menuForm">
+    <input type="hidden" id="editIndex">
+    <label>Item Name:</label><br>
+    <input type="text" id="itemName" required><br>
+
+    <label>Description:</label><br>
+    <input type="text" id="itemDesc" required><br>
+
+    <label>Category:</label><br>
+    <input type="text" id="itemCategory" required><br>
+
+    <label>Price:</label><br>
+    <input type="number" id="itemPrice" required><br>
+
+    <label>Availability:</label><br>
+    <select id="itemAvailability">
+      <option value="Available">Available</option>
+      <option value="Unavailable">Unavailable</option>
+    </select><br><br>
+
+    <button type="submit">Save Item</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item Name</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Availability</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="menuTable"></tbody>
+  </table>
+
+  <script src="menu.js"></script>
+</body>
+</html>

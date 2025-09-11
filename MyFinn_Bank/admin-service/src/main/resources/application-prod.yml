@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:myfinbank
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+
+jwt:
+  secret: myfinbank-admin-secret-key-for-production-environment
+  expiration: 86400000
+
+logging:
+  level:
+    com.myfinbank: INFO
+    org.springframework.security: WARN

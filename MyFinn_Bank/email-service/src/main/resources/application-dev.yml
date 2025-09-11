@@ -1,0 +1,40 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: myfinbank.alerts@gmail.com
+    password: tmig qajb sclg cyqb
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.gmail.com
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+          debug: true
+    default-encoding: UTF-8
+  
+  # Thymeleaf configuration
+  thymeleaf:
+    cache: false
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+# Async configuration for email sending
+email:
+  async:
+    enabled: true
+    core-pool-size: 2
+    max-pool-size: 5
+    queue-capacity: 100
+
+# Template configuration
+template:
+  base-url: http://localhost:8080

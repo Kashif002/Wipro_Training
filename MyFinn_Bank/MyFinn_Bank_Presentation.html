@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyFinn Bank - Project Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 30px 0;
+            padding: 40px;
+            min-height: 600px;
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .slide-title {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .slide-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: 300;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .content-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .tech-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .service-box {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .database-table {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+        }
+
+        .table-content {
+            padding: 15px;
+        }
+
+        .workflow-step {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .workflow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .workflow-step:last-child::after {
+            display: none;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .icon {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin: 10px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">8</span>
+    </div>
+
+    <div class="presentation-container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1 class="slide-title">🏦 MyFinn Bank</h1>
+                <p class="slide-subtitle">Digital Banking Solution</p>
+                <p class="slide-subtitle">Microservices Architecture Implementation</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">📋 Project Overview</h3>
+                    <p class="card-content">
+                        A comprehensive digital banking platform built with modern microservices architecture, 
+                        providing secure banking operations, loan management, and customer support.
+                    </p>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="card-title">🎯 Key Features</h3>
+                    <ul class="card-content">
+                        <li>Customer Account Management</li>
+                        <li>Loan Application & Approval</li>
+                        <li>Investment Options (FD/RD)</li>
+                        <li>Real-time Chat Support</li>
+                        <li>Email Notifications</li>
+                        <li>Admin Dashboard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-card" style="text-align: center; margin-top: 40px;">
+                <h3 class="card-title">🚀 Modern Banking Solution</h3>
+                <p class="card-content">
+                    Built with Spring Boot, Microservices, and Modern Web Technologies
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Technology Stack -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🛠️ Technology Stack</h1>
+                <p class="slide-subtitle">Modern Technologies for Enterprise Banking</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">🔧 Backend Technologies</h3>
+                    <div class="tech-stack">
+                        <span class="tech-item">Java 17</span>
+                        <span class="tech-item">Spring Boot 3.5.5</span>
+                        <span class="tech-item">Spring Cloud 2025.0.0</span>
+                        <span class="tech-item">Spring Security</span>
+                        <span class="tech-item">Spring Data JPA</span>
+                        <span class="tech-item">MySQL Database</span>
+                        <span class="tech-item">JWT Authentication</span>
+                        <span class="tech-item">Maven Build Tool</span>
+                        <span class="tech-item">Lombok</span>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🎨 Frontend Technologies</h3>
+                    <div class="tech-stack">
+                        <span class="tech-item">Thymeleaf</span>
+                        <span class="tech-item">Bootstrap 5.3.2</span>
+                        <span class="tech-item">jQuery 3.7.1</span>
+                        <span class="tech-item">Font Awesome 6.4.0</span>
+                        <span class="tech-item">HTML5/CSS3</span>
+                        <span class="tech-item">JavaScript ES6+</span>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">☁️ Microservices Components</h3>
+                    <div class="tech-stack">
+                        <span class="tech-item">Netflix Eureka</span>
+                        <span class="tech-item">Spring Cloud Gateway</span>
+                        <span class="tech-item">Spring Boot Actuator</span>
+                        <span class="tech-item">Swagger/OpenAPI</span>
+                        <span class="tech-item">Spring Mail</span>
+                        <span class="tech-item">Thymeleaf Templates</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Architecture Design -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🏗️ Architecture Design</h1>
+                <p class="slide-subtitle">Microservices Architecture with Service Discovery</p>
+            </div>
+
+            <div class="architecture-diagram">
+                <h3 style="margin-bottom: 30px; color: #667eea;">System Architecture</h3>
+                
+                <div style="margin: 20px 0;">
+                    <div class="service-box">API Gateway<br><small>Port: 8080</small></div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <div class="service-box">Eureka Server<br><small>Port: 8761</small></div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <div class="service-box">Customer Service<br><small>Port: 8081</small></div>
+                    <div class="service-box">Admin Service<br><small>Port: 8082</small></div>
+                    <div class="service-box">Email Service<br><small>Port: 8083</small></div>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <div class="service-box">MySQL Database<br><small>Port: 3306</small></div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">🔄 Service Communication</h3>
+                    <ul class="card-content">
+                        <li>Client requests routed through API Gateway</li>
+                        <li>Service discovery via Eureka Server</li>
+                        <li>Load balancing and failover support</li>
+                        <li>Asynchronous email processing</li>
+                        <li>Shared database with proper isolation</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🔐 Security Features</h3>
+                    <ul class="card-content">
+                        <li>JWT-based authentication</li>
+                        <li>Role-based access control</li>
+                        <li>Password encryption with BCrypt</li>
+                        <li>Session management</li>
+                        <li>CSRF protection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Database Schema -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🗄️ Database Schema</h1>
+                <p class="slide-subtitle">Normalized Database Design with Proper Relationships</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="database-table">
+                    <div class="table-header">👥 Customers Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> id<br>
+                        <strong>Unique Fields:</strong> customer_id, email, phone<br>
+                        <strong>Features:</strong> Account status, email verification, timestamps
+                    </div>
+                </div>
+
+                <div class="database-table">
+                    <div class="table-header">👨‍💼 Admins Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> admin_id<br>
+                        <strong>Unique Fields:</strong> email<br>
+                        <strong>Features:</strong> Role management, activity tracking
+                    </div>
+                </div>
+
+                <div class="database-table">
+                    <div class="table-header">💳 Accounts Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> id<br>
+                        <strong>Foreign Key:</strong> customer_id → customers(id)<br>
+                        <strong>Features:</strong> Multiple account types, balance tracking
+                    </div>
+                </div>
+
+                <div class="database-table">
+                    <div class="table-header">💰 Loans Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> id<br>
+                        <strong>Foreign Keys:</strong> customer_id, approved_by<br>
+                        <strong>Features:</strong> Loan lifecycle, EMI calculation
+                    </div>
+                </div>
+
+                <div class="database-table">
+                    <div class="table-header">📊 Transactions Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> id<br>
+                        <strong>Foreign Keys:</strong> from_account_id, to_account_id<br>
+                        <strong>Features:</strong> Transaction types, status tracking
+                    </div>
+                </div>
+
+                <div class="database-table">
+                    <div class="table-header">💬 Chat Messages Table</div>
+                    <div class="table-content">
+                        <strong>Primary Key:</strong> id<br>
+                        <strong>Foreign Keys:</strong> customer_id, admin_id<br>
+                        <strong>Features:</strong> Real-time messaging, read status
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card" style="margin-top: 30px;">
+                <h3 class="card-title">🔗 Key Relationships</h3>
+                <ul class="card-content">
+                    <li><span class="highlight">One-to-Many:</span> Customer → Accounts, Loans, Transactions</li>
+                    <li><span class="highlight">Many-to-One:</span> Loans → Admin (approved_by)</li>
+                    <li><span class="highlight">Many-to-Many:</span> Transactions between Accounts</li>
+                    <li><span class="highlight">Self-Referencing:</span> Chat Messages (customer ↔ admin)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Business Workflow -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🔄 Business Workflow</h1>
+                <p class="slide-subtitle">Complete Banking Operations Flow</p>
+            </div>
+
+            <div class="content-card">
+                <h3 class="card-title">👤 Customer Registration & Authentication</h3>
+                <div class="workflow-step">
+                    <strong>Step 1:</strong> Customer Registration → Password Encryption → Database Save → Welcome Email
+                </div>
+                <div class="workflow-step">
+                    <strong>Step 2:</strong> Customer Login → JWT Token Generation → Secure Session
+                </div>
+                <div class="workflow-step">
+                    <strong>Step 3:</strong> Request Authentication → JWT Validation → Access Granted
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="card-title">💳 Account Management Operations</h3>
+                <div class="workflow-step">
+                    <strong>Deposit:</strong> Amount Validation → Transaction Creation → Balance Update → Confirmation
+                </div>
+                <div class="workflow-step">
+                    <strong>Withdrawal:</strong> Balance Check → Amount Validation → Transaction Creation → Balance Update
+                </div>
+                <div class="workflow-step">
+                    <strong>Transfer:</strong> Source/Destination Validation → Balance Check → Transaction Creation → Both Account Updates
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="card-title">🏦 Loan Application Process</h3>
+                <div class="workflow-step">
+                    <strong>Application:</strong> Customer Submits → EMI Calculation → Interest Rate Assignment → Database Save → Email Notification
+                </div>
+                <div class="workflow-step">
+                    <strong>Review:</strong> Admin Reviews → Credit Check → Decision Making
+                </div>
+                <div class="workflow-step">
+                    <strong>Approval/Rejection:</strong> Status Update → Email Notification → Customer Notification → Account Update (if approved)
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="card-title">💬 Customer Support Chat</h3>
+                <div class="workflow-step">
+                    <strong>Customer Message:</strong> Message Submission → Database Storage → Admin Notification
+                </div>
+                <div class="workflow-step">
+                    <strong>Admin Response:</strong> Message Review → Response Creation → Database Storage → Customer Notification
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Key Annotations -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🏷️ Key Annotations & Usage</h1>
+                <p class="slide-subtitle">Spring Framework Annotations Explained</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">🚀 Spring Boot Core</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@SpringBootApplication:</span> Main application class</li>
+                        <li><span class="highlight">@EnableDiscoveryClient:</span> Eureka service registration</li>
+                        <li><span class="highlight">@EnableAsync:</span> Asynchronous processing</li>
+                        <li><span class="highlight">@EnableTransactionManagement:</span> Database transactions</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🔐 Security Annotations</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@EnableWebSecurity:</span> Security configuration</li>
+                        <li><span class="highlight">@PreAuthorize:</span> Method-level security</li>
+                        <li><span class="highlight">@Secured:</span> Role-based access</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🗄️ JPA/Hibernate</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@Entity:</span> Database entity mapping</li>
+                        <li><span class="highlight">@Table:</span> Table name specification</li>
+                        <li><span class="highlight">@Id & @GeneratedValue:</span> Primary key definition</li>
+                        <li><span class="highlight">@ManyToOne & @OneToMany:</span> Entity relationships</li>
+                        <li><span class="highlight">@Enumerated:</span> Enum mapping</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🌐 Controller Annotations</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@RestController:</span> REST API endpoints</li>
+                        <li><span class="highlight">@Controller:</span> Web page controllers</li>
+                        <li><span class="highlight">@RequestMapping:</span> URL mapping</li>
+                        <li><span class="highlight">@GetMapping/@PostMapping:</span> HTTP method mapping</li>
+                        <li><span class="highlight">@RequestBody/@RequestParam:</span> Request data binding</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">⚙️ Service Layer</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@Service:</span> Business logic components</li>
+                        <li><span class="highlight">@Repository:</span> Data access layer</li>
+                        <li><span class="highlight">@Transactional:</span> Transaction management</li>
+                        <li><span class="highlight">@Async:</span> Asynchronous methods</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">✅ Validation & Config</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">@Valid:</span> Request validation</li>
+                        <li><span class="highlight">@NotNull/@NotBlank:</span> Field validation</li>
+                        <li><span class="highlight">@Configuration:</span> Configuration classes</li>
+                        <li><span class="highlight">@Bean:</span> Spring bean definition</li>
+                        <li><span class="highlight">@Value:</span> Property injection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: API Endpoints -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🔌 API Endpoints</h1>
+                <p class="slide-subtitle">RESTful API Design</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">👤 Customer Service APIs</h3>
+                    <div class="card-content">
+                        <strong>Authentication:</strong><br>
+                        • POST /api/auth/register<br>
+                        • POST /api/auth/login<br>
+                        • GET /api/auth/validate-session<br><br>
+                        
+                        <strong>Account Management:</strong><br>
+                        • GET /api/customer/account/balance<br>
+                        • POST /api/customer/account/deposit<br>
+                        • POST /api/customer/account/withdraw<br>
+                        • POST /api/customer/account/transfer<br><br>
+                        
+                        <strong>Loan Management:</strong><br>
+                        • POST /api/customer/loans/apply<br>
+                        • GET /api/customer/loans/my-loans<br>
+                        • GET /api/customer/loans/calculate-emi<br><br>
+                        
+                        <strong>Chat Support:</strong><br>
+                        • POST /api/customer/chat/send<br>
+                        • GET /api/customer/chat/history
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">👨‍💼 Admin Service APIs</h3>
+                    <div class="card-content">
+                        <strong>Authentication:</strong><br>
+                        • POST /api/admin/login<br>
+                        • POST /api/admin/register<br><br>
+                        
+                        <strong>Customer Management:</strong><br>
+                        • GET /api/admin/customers<br>
+                        • GET /api/admin/customers/{id}<br>
+                        • PUT /api/admin/customers/{id}/status<br><br>
+                        
+                        <strong>Loan Management:</strong><br>
+                        • GET /api/admin/loans/pending<br>
+                        • POST /api/admin/loans/{id}/approve<br>
+                        • POST /api/admin/loans/{id}/reject<br><br>
+                        
+                        <strong>Transaction Monitoring:</strong><br>
+                        • GET /api/admin/transactions<br>
+                        • GET /api/admin/transactions/customer/{id}<br><br>
+                        
+                        <strong>Chat Management:</strong><br>
+                        • GET /api/admin/chat/messages<br>
+                        • POST /api/admin/chat/respond
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">📧 Email Service APIs</h3>
+                    <div class="card-content">
+                        <strong>Email Operations:</strong><br>
+                        • POST /api/emails/send<br>
+                        • POST /api/emails/welcome<br>
+                        • POST /api/emails/loan-approval<br>
+                        • POST /api/emails/loan-rejection<br>
+                        • POST /api/emails/account-alert<br><br>
+                        
+                        <strong>Template Management:</strong><br>
+                        • HTML email templates<br>
+                        • Dynamic content injection<br>
+                        • Asynchronous processing<br>
+                        • SMTP integration
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card" style="margin-top: 30px;">
+                <h3 class="card-title">📚 API Documentation</h3>
+                <ul class="card-content">
+                    <li><span class="highlight">Swagger UI:</span> Interactive API documentation</li>
+                    <li><span class="highlight">OpenAPI 3.0:</span> Standard API specification</li>
+                    <li><span class="highlight">Response Formats:</span> Consistent JSON responses</li>
+                    <li><span class="highlight">Error Handling:</span> Standardized error responses</li>
+                    <li><span class="highlight">Authentication:</span> JWT token-based security</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: Deployment & Conclusion -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🚀 Deployment & Conclusion</h1>
+                <p class="slide-subtitle">Production-Ready Banking Solution</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3 class="card-title">🔄 Startup Sequence</h3>
+                    <div class="workflow-step">
+                        <strong>1.</strong> Start MySQL Database (Port 3306)
+                    </div>
+                    <div class="workflow-step">
+                        <strong>2.</strong> Start Eureka Server (Port 8761)
+                    </div>
+                    <div class="workflow-step">
+                        <strong>3.</strong> Start Email Service (Port 8083)
+                    </div>
+                    <div class="workflow-step">
+                        <strong>4.</strong> Start Customer Service (Port 8081)
+                    </div>
+                    <div class="workflow-step">
+                        <strong>5.</strong> Start Admin Service (Port 8082)
+                    </div>
+                    <div class="workflow-step">
+                        <strong>6.</strong> Start API Gateway (Port 8080)
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🌐 Access URLs</h3>
+                    <ul class="card-content">
+                        <li><span class="highlight">API Gateway:</span> http://localhost:8080</li>
+                        <li><span class="highlight">Customer Portal:</span> http://localhost:8081</li>
+                        <li><span class="highlight">Admin Dashboard:</span> http://localhost:8082</li>
+                        <li><span class="highlight">Eureka Dashboard:</span> http://localhost:8761</li>
+                        <li><span class="highlight">Swagger Documentation:</span> Available on each service</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">✨ Key Achievements</h3>
+                    <ul class="card-content">
+                        <li>✅ Scalable microservices architecture</li>
+                        <li>✅ Secure JWT-based authentication</li>
+                        <li>✅ Real-time chat support system</li>
+                        <li>✅ Automated email notifications</li>
+                        <li>✅ Responsive web interface</li>
+                        <li>✅ Comprehensive API documentation</li>
+                        <li>✅ Database normalization</li>
+                        <li>✅ Modern development practices</li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="card-title">🔮 Future Enhancements</h3>
+                    <ul class="card-content">
+                        <li>Mobile application development</li>
+                        <li>Advanced analytics and reporting</li>
+                        <li>Blockchain integration</li>
+                        <li>AI-powered fraud detection</li>
+                        <li>Multi-currency support</li>
+                        <li>Advanced investment options</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-card" style="text-align: center; margin-top: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h3 class="card-title" style="color: white;">🏦 MyFinn Bank</h3>
+                <p class="card-content" style="color: white; font-size: 1.1em;">
+                    A comprehensive digital banking solution built with modern microservices architecture, 
+                    demonstrating enterprise-level development practices and scalable design patterns.
+                </p>
+                <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.9;">
+                    Built with ❤️ using Spring Boot, Microservices, and Modern Web Technologies
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            if (direction === 1 && currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            } else if (direction === -1 && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

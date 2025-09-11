@@ -1,0 +1,172 @@
+Session 1: Introduction to Git and GitHub
+	- Version Control System
+		- What
+		- Why
+		- How
+		- Types of VCS
+			- Centralized
+			- Distributed
+
+	- Git
+		- What?
+			- Distributed VCS
+		- Why ?
+			- OpenSource
+		- How? 
+			- Installation
+			- Commands
+
+---------------------------------------------------------
+
+Powershell | Command prompt
+Command Line Interface
+
+Bash | Powershell | CLI | Shell
+
+- Interaction with OS by firing commands
+- Used to Give instructions
+- Manipulating Files
+- Automation, shell scripting
+- Only Codes, No GUI(No Command, Click Operated)
+- Used to Install Packages
+
+Commands --> Instructions (Not Case Insensitive)
+
+- pwd - present working directory 
+- ls - listing all the files
+- cd - change directory
+- mkdir - make a directory
+- rmdir - remove a directory
+- echo - 
+- cat
+------------------------------------------------------
+
+VCS:
+	- Track changes in files
+	- Maintain a history of changes
+	- Managing Changes
+	- Collaborating with Multiple Teams
+	- Easy resolution of Issues
+
+
+Without VCS		| With VCS
+--------------		  -------------
+
+
+Agile Methodology
+	- SDLC
+
+
+5 Features you developed
+	
+-------------------------------------------------------
+git init --> creates a version for your directory, now can track changes
+git version -->
+git status ---> Status of your files
+git add --> Adds the file into staging area
+git add . --> Multiple files into the staging area
+git commit --m --> Add a message 
+git log
+git log --oneline
+
+	Terminologies
+	-------------
+folder ---> Directory
+working directory
+staging area/ staging index
+Repository	
+
+Initialized a Repository
+
+------------------------------------------------------------
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        hello.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+
+-------
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   hello.txt
+
+------------
+[master (root-commit) 05e4a26] Added Hello.txt
+ 1 file changed, 1 insertion(+)
+ create mode 100644 hello.txt
+
+----
+On branch master
+nothing to commit, working tree clean
+---------------------------------------------------
+
+
+Branch 
+Master
+
+------------------------------------------------
+commit 322a6c08ad47388871b56510b606d56b8e8aed6e (HEAD -> master)
+Author: Gajendra Sharma <datasharmawork@gmail.com>
+Date:   Thu Jul 24 13:01:39 2025 +0530
+
+    Added few more lines
+
+commit 05e4a26616573ca4c1ec399cc0035fd17bf7b29d
+Author: Gajendra Sharma <datasharmawork@gmail.com>
+Date:   Thu Jul 24 12:53:28 2025 +0530
+
+    Added Hello.txt
+
+
+head -> master
+
+Branch --> Not a folder
+
+But a Git pathway :
+	- main path --> master
+	- branch path --> branch name
+
+Reverse chronological order
+
+
+---------------------------------------------
+
+Task
+----
+Step 1: Initialize a Git Repository, check git status
+Step 2: Create a file, check git status
+Step 3: Add that file into staging area, check the git status
+Step 4: Commit that file, check git status
+
+------------------------------------------------------------
+git log --oneline
+
+
+mkdir folder_name
+git init
+
+echo "Hi this is my sentence" > first_file.txt
+
+--------------------------------------
+GitHub Account
+--------------
+- Shared Platform
+- host platform
+
+Markdown --> .md
+Jupyter Notebook
+
+Codes 
+
+Highlight Something
+Formatting
+

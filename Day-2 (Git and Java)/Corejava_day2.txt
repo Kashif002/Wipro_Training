@@ -1,0 +1,243 @@
+				Introduction to Git:
+				------------------
+
+Shell | Powershell Commands
+-------------------------------
+pwd - Present Working directory
+cd - change directory
+ls - list down the contents of directory
+mkdir - make a directory
+rmdir - remove a directory
+echo "" > file_name - create a file | Overwrites
+echo "" >> file_name - appends the file
+cat - show the contents of a file
+
+
+
+
+Version Control System:
+	- Why?
+		- To actually debug things, helps change in evolving requirements, collaboration
+	- What? - To maintain the history of changes, and easy to go back to pervious version, take snapshots
+	- How? 
+	- Types - Centralized and Distributed VCS
+
+Git:
+	- Why?
+	- What? - Open source, distributed, vcs, collaboration
+	- How?
+		- Installation
+		- Basic Commands
+
+
+Git Commands:
+	- Initialized a repo
+	- Checked the status
+	- Added files to staging area
+	- Committed files
+	- Branch
+	- Merging
+	- Push and Pull
+
+Push and Pull
+-------------
+Step 1: Create a connection with remote repository and repository in your local machine 
+		
+		- git remote add origin https://github.com/datasharma/demo_repo.git
+
+Step 2: Push my exisiting code and contents to remote repository
+		- git push -u origin master
+
+Step 3: Pull any changes done in github to my local repository, master
+
+Step 4: Push any changes done
+
+--------------------------------------------------------------
+
+
+Task : Go to Olympus : Watch Videos Introduction to Git and Github
+
+
+
+
+Team: We create a remote repository
+
+When you open laptop for your work: git pull
+When your work is done: git push
+
+version controlled 
+
+----------------------------------------------------------------------------
+
+Programming Language:
+	- Why
+	- What 
+		- Language for Communication with Computer
+		- Set of instructions for performing certain tasks
+		- Intermediary between user and machine
+		- high level language | interepretd by computer as it cannot understand natural language
+		- language breaks down codes into 0s and 1s
+	
+
+High Level Language?
+	- Human readable and easy to understand
+	- Easy to write
+	- Not english but similar to english or you can say a middle ground between computer and a user
+
+Computer Understands
+	- 0s and 1s
+	- 0 - Low Voltage , 1 - High Voltage
+	- 0 - Switch Off / No current flowing | 1 - Switch On, Current is flowing
+2^  3210    	
+
+1 - 0001
+2 - 0010
+3 - 0011
+4 - 0100
+
+Binary
+
+73(Binary) + 52 (Binary)
+
+High Level Language : Which converts numbers and texts into binary. add(73 + 42)
+
+Process : High level language is converted to binary: Compilation
+	Compiler
+
+
+People created a structure:
+Syntax: 
+	- Set of Rules
+	- Structure
+
+Errors:
+	Syntax Errors: print(Hello)
+	Logical Errors: 
+
+divide(num1, num2):
+	return num1/num2
+
+num2 = 0
+num1 = 5
+5/0
+
+	- Types
+
+--------------------------------------------
+Why so many programming languages?
+	- Examples : Python, C, C++, Java, Rust, Scala, Javascript, Typescript
+
+	- Diff Use cases/ Needs/ Purpose
+	- Platform Dependency
+	- Performance | Time Complexity | Efficiency 
+	- Community
+	- Complexity and friendliness to use
+	- Evolving Technologies
+	- Security
+	- Open or not open source
+
+Performance : C
+OOP : C++
+Community Support : Java
+Platform Indepency : Java
+Beginner Friendly : Python
+Security : 
+Machine Learning : Python | R
+Data Engineering | Big Data : JVM , Scala, Java 
+
+
+----------------------------------------------
+
+Java:
+	- Why
+		- Object Oriented
+		- Platform Independent 
+		- Security
+		- Robust
+		- WORA : Write Once Run Anywhere
+		- Multithreading
+		- Strictly Typed Language
+		- Garbage Collection
+		- Library / Community Support
+		- Rich API
+
+How do we install Java:
+		- 
+
+
+Java Code you write in windows
+Linux 
+
+WRITE ONCE RUN ANYWHERE
+
+
+Java Installation
+Vs code Installation
+Eclipse Installation
+
+
+Java:
+	-
+
+
+-------------------------------------------
+
+
+Step 1: Create a directory | Check Status
+Step 2: Initialize a git repository | Check Status
+Step 3: Create a file |Check Status
+Step 4: Put that file into staging area | Check Status
+Step 5: Commit that file | Check Status
+Step 6: Give me git log --oneline and share in chatbox
+
+
+
+Command Line Interface
+	- Basic Commands
+		- pwd
+		- cd
+		- ls
+		- mkdir
+		- rmdir
+		- echo 
+		- >  <  >>
+		- cd .. 
+
+GitHub Account Setup
+Git Commands
+
+	Basic Commands:
+		- git version
+		- git init
+		- git status
+		- git add | git add .
+		- git commit -m
+		- git config --global user.name
+		- git config --global user.email
+		- git log 
+		- git log --oneline
+		- git log -stat
+	
+	Push and Pull:
+		- git remote add origin https://github.com/datasharma/demo_repo.git
+		- git push -u origin master
+		- git pull
+		- git push
+	Branching:
+		- git branch new_feature
+		- git log --oneline (Check Head)
+		- git switch new_feature
+		- git log --oneline (Check Head)
+	
+	Merging: 
+		- git merge new_feature
+
+ 
+
+
+
+
+
+
+
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .feature-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-hero {
+            font-size: 1.1rem;
+            padding: 0.75rem 2rem;
+            margin: 0.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary-hero {
+            background: #ffffff;
+            color: #1e3a8a;
+            border: 2px solid #ffffff;
+        }
+        
+        .btn-primary-hero:hover {
+            background: transparent;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary-hero {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+        }
+        
+        .btn-secondary-hero:hover {
+            background: #ffffff;
+            color: #1e3a8a;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="mb-4">
+                <i class="fas fa-university fa-4x mb-3"></i>
+            </div>
+            
+            <h1 class="hero-title">Welcome to MyFin Bank</h1>
+            <p class="hero-subtitle">Your trusted digital banking partner for secure and convenient financial services</p>
+            
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                        <h5>Secure Banking</h5>
+                        <p>Advanced security measures to protect your finances</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <i class="fas fa-mobile-alt fa-2x mb-2"></i>
+                        <h5>Digital Services</h5>
+                        <p>Access your account anytime, anywhere</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-box">
+                        <i class="fas fa-headset fa-2x mb-2"></i>
+                        <h5>24/7 Support</h5>
+                        <p>Round-the-clock customer service</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h3 class="mb-3">Admin Access</h3>
+                <a href="/login" class="btn-hero btn-primary-hero">
+                    <i class="fas fa-sign-in-alt"></i> Admin Login
+                </a>
+                <a href="/register" class="btn-hero btn-secondary-hero">
+                    <i class="fas fa-user-plus"></i> Admin Register
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-light">
+                    <i class="fas fa-info-circle"></i> 
+                    Customer portal coming soon | © 2025 MyFin Bank. All rights reserved.
+                </small>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

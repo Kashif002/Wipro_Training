@@ -1,0 +1,57 @@
+<!-- create a simple javascript program for order processing
+ 
+1. Stores menu items with prices (data types : strings , numbers , array and objects).
+
+2. Take a customer's order (conditional statement)
+
+If customer orders more that 3 items then apply 10% discount
+3. Calculates the total price with discounts if applicable(operators)
+
+4. Loops through orders to display them 
+display the final bill in JSON format
+
+Bootstrap is the customized which is predefined classes are given 
+
+Bootstrap can be embed by downloading the files or the software or you can use cdn links but for this internet connectivity is required
+custom css 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <!-- Bootstrap cdn link added of css-->
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+
+     <!-- custom stylesheet i.e style.css is added-->
+     <link ref="stylesheet" href="orderprocessing.css">
+</head>
+<body class="bg-info-subtle">
+
+    <div class="container mt-5">
+     <h1 class="text-center text-brown-mb-4"> Order Management System</h1>
+ 
+        <div class="card shadow p-4">
+            <form id="orderform">
+                <div class="mb-3">
+                    <label  class="form-label">Order Items( comma separated)</label>
+                    <input type="text" class="form-control" id="orderInput" placeholder="burger(Rs. 120),
+    pizza(Rs.250),
+    pasta(Rs.180),
+    coffee(Rs 80)">
+                </div>
+              <button type="submit" class="btn btn-outline-secondary">Calculate Bill</button>
+            </form>
+
+         </div >
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <script src="orderprocessing.js"></script>
+</body>
+</html>
+
+<!-- change this project to student report card (in array (subject)))calculate the marks and grades-->
+
+	

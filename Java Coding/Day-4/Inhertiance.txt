@@ -1,0 +1,32 @@
+Inheritance : where a child class inherits properties and methods from parent(super ) class using the extends keyword
+              and it enables code reuse , hierarchical structure and also support polymorhism.
+              
+Types of Inheritance:
+a) Single INheritance : one child(sub or derived class) and one parent(super ,base class)
+
+for eg :  class Father{}     ,   class Child extends Father {}
+b) Multilevel Inheritance : one child class extends one base class and then the another child class extends the child class
+
+for eg :  class Father{}   , class Child extends Father{} ,   class GrandChild extends Child{}
+
+c) Multiple Inheritance ( which is implemented via Interface) --  one class can implements two interfaces
+
+for eg:   interface Operations{} , interface Execution{}   ,  class MainProgram implements Operations, Execution
+
+* Second ex. is not possible :  class Father{}   , class Child extends Father{} ,   class GrandChild extends Father , Child 
+* Third  ex. is possible : class Father{}   , interface Operations{} ,   class Child extends Father implements Operations {}
+* Fourth ex. is not possible : class Father{}   , interface Operations{} ,   class Child implements Operations extends Father {}
+* Fifth  ex. is possible:   interface Operations{} , interface Execution extends Operations{}   
+
+d) Hierarchical Inheritance  : --  When multiple subclasses extending one same Parent 
+
+for eg :  class GrandFather{}   , class Father extends GrandFather{} ,   class Child extends GrandFather{}
+
+e) Hybrid Inheritance  --- Mix of types  eg : Hierarchical + interface based multiple inheritance
+
+Super keyword is used in inheritance generally 
+1. Super keyword is used to access the parent class fields or methods when overridden in child class  (super.field or super.method() you are calling in child  class of base class)
+2. Super keyword  must be the first statement in the subclass constructor if used.
+3. A subclass inherits only non-private or protected members of a base class.
+4. super can't be used in static context.
+

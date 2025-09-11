@@ -1,0 +1,38 @@
+body{
+    background-color: black;
+}
+
+h1
+{
+    color: red;
+    text-align: center;
+}
+h2
+{
+    color: white;
+}
+
+.div0{
+    max-width: 1300px;
+    background-color: white;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.div1, .div2, .div3 {
+    height: 180px;
+    display: flex; 
+    justify-content: center; /* centers horizontally */
+    align-items: center; /* centers vertically */
+    margin: 0; /* remove gaps */
+}
+
+.div1{
+    background-color: rgb(123, 212, 123);
+}
+.div2{
+    background-color: rgb(213, 138, 25);
+}
+.div3{
+    background-color: rgb(182, 25, 182);
+}

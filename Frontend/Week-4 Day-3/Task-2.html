@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random User Fetch</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      flex-direction: column;
+      background-color: #f1cece;
+    }
+    #userInfo {
+      margin-top: 20px;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      max-width: 400px;
+      text-align: center;
+      background-color: #e5f6d7;
+      font-size: 1.5em;
+    }
+    h1 {
+      font-size: 2.5em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    img {
+      border-radius: 50%;
+      width: 150px;
+      height: 150px;
+    }
+    p {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fetch Random User</h1>
+  <button id="fetchUser">Get Random User</button>
+  <div id="userInfo"></div>
+
+  <script>
+    document.getElementById('fetchUser').addEventListener('click', () => {
+      fetch('https://randomuser.me/api/')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const user = data.results[0];
+          const html = `
+            <p><strong>Name:</strong> ${user.name.first} ${user.name.last}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <img src="${user.picture.large}" alt="Profile Picture">
+          `;
+          document.getElementById('userInfo').innerHTML = html;
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+          document.getElementById('userInfo').innerHTML = '<p>Error fetching user data. Please try again.</p>';
+        });
+    });
+  </script>
+</body>
+</html>

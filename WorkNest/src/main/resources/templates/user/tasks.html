@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <div th:replace="fragments/header :: head"></div>
+    <title th:text="${task.title}">Task Details</title>
+    <style>
+       .content-box { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); margin-bottom: 2rem;}
+       .task-detail-header { border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+       .comment-section { margin-top: 2rem; }
+       .comment { border-bottom: 1px solid var(--border-color); padding: 1rem 0; }
+       .comment:last-child { border-bottom: none; }
+       .comment-author { font-weight: bold; }
+       .comment-date { font-size: 0.8rem; color: #888; margin-left: 10px; }
+       .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+       .btn { padding: 10px 20px; border-radius: 5px; text-decoration: none; color: white; font-weight: 500; cursor: pointer; border: none; }
+       .btn-primary { background-color: var(--primary-color); }
+       .btn-secondary { background-color: #6c757d; }
+       .btn-small { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
+       .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; }
+       .status-PENDING { background-color: #ffc107; color: #333; }
+       .status-IN_PROGRESS { background-color: #17a2b8; color: #fff; }
+       .status-COMPLETED { background-color: #28a745; color: #fff; }
+       .status-DELAYED { background-color: #dc3545; color: #fff; }
+       .completed-by-admin-notice {
+           background-color: #e7f3ff;
+           border: 1px solid #b3d7ff;
+           padding: 1rem;
+           border-radius: 5px;
+           margin: 1rem 0;
+           color: #004085;
+       }
+       .team-assignment {
+           background-color: #f8f9fa;
+           padding: 1rem;
+           border-radius: 5px;
+           margin: 1rem 0;
+       }
+       .team-member { display: inline-block; background: #e9ecef; padding: 0.25rem 0.5rem; margin: 0.25rem; border-radius: 15px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <script>
+        // Check authentication on page load
+        function checkAuth() {
+            const token = sessionStorage.getItem('jwtToken');
+            const userRole = sessionStorage.getItem('userRole');
+            
+            if (!token || (userRole !== 'USER' && userRole !== 'ADMIN')) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if token is expired
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const expirationTime = payload.exp * 1000;
+                const currentTime = Date.now();
+                
+                if (currentTime >= expirationTime) {
+                    sessionStorage.clear();
+                    document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                sessionStorage.clear();
+                window.location.href = '/login';
+            }
+        }
+        
+        checkAuth();
+        
+        // Load team members for assignment
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTeamMembersForAssignment();
+        });
+        
+        function loadTeamMembersForAssignment() {
+            const token = sessionStorage.getItem('jwtToken');
+            
+            fetch('/api/user/team-members', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(teamMembers => {
+                const container = document.getElementById('teamMembersForAssignment');
+                
+                if (teamMembers.length === 0) {
+                    container.innerHTML = '<p>No team members available for assignment.</p>';
+                } else {
+                    container.innerHTML = teamMembers.map(member => 
+                        `<label><input type="checkbox" value="${member.id}"> <span class="team-member">${member.name}</span></label>`
+                    ).join('<br>');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading team members:', error);
+                document.getElementById('teamMembersForAssignment').innerHTML = '<p>Failed to load team members.</p>';
+            });
+        }
+        
+        function showAssignmentForm() {
+            const checkboxes = document.querySelectorAll('#teamMembersForAssignment input[type="checkbox"]:checked');
+            const selectedUserIds = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (selectedUserIds.length === 0) {
+                alert('Please select at least one team member to assign.');
+                return;
+            }
+            
+            if (confirm(`Assign this task to ${selectedUserIds.length} team member(s)?`)) {
+                assignToTeamMembers(selectedUserIds);
+            }
+        }
+        
+        function assignToTeamMembers(userIds) {
+            const token = sessionStorage.getItem('jwtToken');
+            const taskId = window.location.pathname.split('/').pop();
+            
+            const formData = new FormData();
+            userIds.forEach(userId => formData.append('userIds', userId));
+            
+            fetch(`/api/user/tasks/${taskId}/assign?` + new URLSearchParams(formData), {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+            .then(response => response.text())
+            .then(message => {
+                alert(message);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error assigning task:', error);
+                alert('Failed to assign task to team members');
+            });
+        }
+    </script>
+
+    <main class="container">
+        <!-- Flash Messages -->
+        <div th:if="${success}" style="background-color: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" style="background-color: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <span th:text="${error}"></span>
+        </div>
+        
+        <div class="content-box">
+            <div class="task-detail-header">
+                <h1 th:text="${task.title}">Task Title</h1>
+                <p><strong>Due Date:</strong> <span th:text="${#dates.format(task.dueDate, 'dd MMM yyyy')}"></span></p>
+                <p><strong>Status:</strong> <span class="status-badge" th:classappend="'status-' + ${task.status}" th:text="${task.status}">STATUS</span></p>
+                
+                <!-- Show assigned users -->
+                <p><strong>Assigned To:</strong> 
+                    <span th:each="user, iterStat : ${task.assignedUsers}" th:text="${user.name} + (${!iterStat.last} ? ', ' : '')"></span>
+                </p>
+                
+                <!-- Admin completion notice -->
+                <div th:if="${task.completedByAdmin}" class="completed-by-admin-notice">
+                    <strong>🔒 This task has been completed by an administrator.</strong><br>
+                    Status cannot be changed by users. Completed on: <span th:text="${#dates.format(task.completedAt, 'dd MMM yyyy, h:mm a')}"></span>
+                </div>
+            </div>
+            
+            <p th:text="${task.description}">Task description.</p>
+            
+            <!-- Team Assignment Section -->
+            <div class="team-assignment" id="teamAssignmentSection">
+                <h4>Assign to Team Members</h4>
+                <div id="teamMembersForAssignment">
+                    <p>Loading team members...</p>
+                </div>
+                <button type="button" class="btn btn-secondary btn-small" onclick="showAssignmentForm()">Assign to Team</button>
+            </div>
+
+            <!-- Status Update Form (only if not completed by admin) -->
+            <form th:if="${!task.completedByAdmin}" th:action="@{/user/tasks/{id}/updateStatus(id=${task.id})}" method="post" style="margin-top: 2rem;">
+                 <label>Update Status:</label>
+                 <select name="status" class="form-control" style="width: auto; display: inline-block; margin: 0 10px;">
+                    <option value="PENDING" th:selected="${task.status == 'PENDING'}">Pending</option>
+                    <option value="IN_PROGRESS" th:selected="${task.status == 'IN_PROGRESS'}">In Progress</option>
+                    <option value="COMPLETED" th:selected="${task.status == 'COMPLETED'}">Completed</option>
+                 </select>
+                 <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+
+        <div class="content-box comment-section">
+            <h2>Comments</h2>
+            <div th:if="${#lists.isEmpty(comments)}">
+                <p>No comments on this task yet.</p>
+            </div>
+            <div th:each="comment : ${comments}" class="comment">
+                <p><strong class="comment-author" th:text="${comment.user.name}"></strong> <span class="comment-date" th:text="${#dates.format(comment.createdAt, 'dd MMM yyyy, h:mm a')}"></span></p>
+                <p th:text="${comment.content}"></p>
+            </div>
+
+            <hr style="margin: 2rem 0;">
+
+            <h3>Add a Comment</h3>
+            <form th:action="@{/user/tasks/{id}/comments/add(id=${task.id})}" th:object="${newComment}" method="post">
+                <textarea th:field="*{content}" class="form-control" rows="4" placeholder="Write your comment here..." required></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">Post Comment</button>
+            </form>
+        </div>
+
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
+

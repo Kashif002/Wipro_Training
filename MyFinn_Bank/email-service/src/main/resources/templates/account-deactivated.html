@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Status Update - MyFin Bank</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #7c2d12, #dc2626);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .status-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .status-message {
+            text-align: center;
+            font-size: 24px;
+            color: #dc2626;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .account-info {
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .account-status {
+            font-size: 32px;
+            color: #dc2626;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+        .account-details {
+            color: #6b7280;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .deactivation-info {
+            background: #fff7ed;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        .deactivation-info h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #fed7aa;
+        }
+        .info-icon {
+            color: #f59e0b;
+            margin-right: 12px;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+        .consequences {
+            background: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .consequences h3 {
+            color: #dc2626;
+            margin-bottom: 15px;
+        }
+        .consequence-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: #374151;
+        }
+        .consequence-icon {
+            color: #dc2626;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .reactivation-steps {
+            background: #f0f9ff;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .reactivation-steps h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .step-number {
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .cta-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .cta-primary {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+        .cta-secondary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+        .urgent-contact {
+            background: #7c2d12;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .timeline-info {
+            background: #fffbeb;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="status-icon">🚫</div>
+            <h1>Account Deactivated</h1>
+            <p>Important account status notification</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="status-message">
+                Account Status Update for <span th:text="${customerName}">Customer</span>
+            </div>
+            
+            <p style="text-align: center; font-size: 18px; color: #374151; margin-bottom: 25px;">
+                We're writing to inform you that your MyFin Bank account has been deactivated.
+            </p>
+            
+            <!-- Account Info -->
+            <div class="account-info">
+                <h3 style="color: #dc2626; margin: 0;">Account Status</h3>
+                <div class="account-status">DEACTIVATED</div>
+                <div class="account-details">
+                    Account: <span th:text="${accountNumber}">****1234</span><br>
+                    Deactivation Date: <span th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}">08 Sep 2025</span>
+                </div>
+            </div>
+            
+            <!-- Deactivation Information -->
+            <div class="deactivation-info">
+                <h3>ℹ️ Reason for Deactivation</h3>
+                
+                <div class="info-item">
+                    <span class="info-icon">⏰</span>
+                    <div>
+                        <strong>Extended Inactivity</strong><br>
+                        <small>Your account has been inactive for more than 180 days</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-icon">🔒</span>
+                    <div>
+                        <strong>Security Policy Compliance</strong><br>
+                        <small>Deactivated as per our security and compliance policies</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-icon">📧</span>
+                    <div>
+                        <strong>Unresponsive to Communications</strong><br>
+                        <small>Multiple attempts to contact you have gone unanswered</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Consequences -->
+            <div class="consequences">
+                <h3>🚨 What This Means</h3>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">❌</span>
+                    <span>Online banking and mobile app access suspended</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">💳</span>
+                    <span>Debit/credit cards associated with this account are blocked</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">💰</span>
+                    <span>All automatic transactions and standing instructions paused</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">🏦</span>
+                    <span>Account funds remain safe but require verification for access</span>
+                </div>
+                
+                <div class="consequence-item">
+                    <span class="consequence-icon">📊</span>
+                    <span>Credit facilities and loan services temporarily unavailable</span>
+                </div>
+            </div>
+            
+            <!-- Timeline Information -->
+            <div class="timeline-info">
+                <h4 style="color: #92400e; margin: 0 0 15px 0;">⏳ Important Timeline</h4>
+                <p style="margin: 8px 0; color: #92400e;">
+                    <strong>Next 30 Days:</strong> Reactivation possible with simple verification
+                </p>
+                <p style="margin: 8px 0; color: #92400e;">
+                    <strong>After 90 Days:</strong> Account may be permanently closed per banking regulations
+                </p>
+            </div>
+            
+            <!-- Reactivation Steps -->
+            <div class="reactivation-steps">
+                <h3>🔄 How to Reactivate Your Account</h3>
+                
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>Contact Customer Service</strong><br>
+                        <small>Call us immediately to initiate the reactivation process</small>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>Identity Verification</strong><br>
+                        <small>Provide necessary documents to verify your identity</small>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>Update Contact Information</strong><br>
+                        <small>Ensure all your contact details are current and accurate</small>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div>
+                        <strong>Account Review</strong><br>
+                        <small>Our team will review and process your reactivation request</small>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div>
+                        <strong>Confirmation</strong><br>
+                        <small>Receive confirmation and regain full access to your account</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="cta-buttons">
+                <a href="#" class="cta-button cta-primary">🔄 Request Reactivation</a>
+                <a href="#" class="cta-button cta-secondary">📞 Call Support</a>
+            </div>
+            
+            <!-- Urgent Contact -->
+            <div class="urgent-contact">
+                <h4 style="margin: 0 0 10px 0;">🆘 Immediate Assistance Required</h4>
+                <p style="margin: 5px 0;">Customer Service Hotline: <strong>1-800-MYFIN</strong></p>
+                <p style="margin: 5px 0; font-size: 12px;">Available 24/7 for account reactivation | Priority support for deactivated accounts</p>
+            </div>
+            
+            <div style="background: #dcfce7; border: 1px solid #16a34a; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <p style="margin: 0; color: #166534; text-align: center;">
+                    <strong>💡 Good News:</strong> Your funds are completely safe and protected. 
+                    Reactivation is typically completed within 24 hours of verification.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>MyFin Bank</strong></p>
+            <p>123 Banking Street, Financial District, City 12345</p>
+            <p>24/7 Support: 1-800-MYFIN | Email: reactivation@myfinbank.com</p>
+            
+            <p style="margin-top: 20px;">
+                <small>
+                    Account deactivation is a security measure to protect your funds. 
+                    We're here to help you regain access quickly and securely.
+                </small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Loan Management - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/js/admin-security.js"></script>
+    
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans" class="active">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <h1>Loan Management</h1>
+            <p class="text-muted">Review and process loan applications</p>
+        </div>
+        
+        <!-- Show error message if data loading failed -->
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}">Error loading loans</span>
+        </div>
+        
+        <!-- Loan Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon loans">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="pendingCount">0</h3>
+                    <p>Pending Reviews</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon approved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="approvedCount">0</h3>
+                    <p>Approved Loans</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon rejected">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="rejectedCount">0</h3>
+                    <p>Rejected Loans</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loan Status Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <div class="loan-tabs">
+                    <button class="tab-btn active" onclick="showLoans('pending')" id="pendingTab">
+                        <i class="fas fa-clock"></i> Pending Applications
+                    </button>
+                    <button class="tab-btn" onclick="showLoans('approved')" id="approvedTab">
+                        <i class="fas fa-check-circle"></i> Approved Loans
+                    </button>
+                    <button class="tab-btn" onclick="showLoans('rejected')" id="rejectedTab">
+                        <i class="fas fa-times-circle"></i> Rejected Loans
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Pending Loans Table -->
+                <div id="pendingLoans" class="loan-section active">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th class="d-none d-md-table-cell">Purpose</th>
+                                    <th class="d-none d-lg-table-cell">Monthly Income</th>
+                                    <th class="d-none d-md-table-cell">Applied Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingLoansBody">
+                                <!-- Pending loans will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Approved Loans Table -->
+                <div id="approvedLoans" class="loan-section">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th class="d-none d-md-table-cell">Interest Rate</th>
+                                    <th class="d-none d-lg-table-cell">Term</th>
+                                    <th class="d-none d-md-table-cell">Approved Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvedLoansBody">
+                                <!-- Approved loans will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Rejected Loans Table -->
+                <div id="rejectedLoans" class="loan-section">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th class="d-none d-md-table-cell">Reason</th>
+                                    <th class="d-none d-md-table-cell">Rejected Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rejectedLoansBody">
+                                <!-- Rejected loans will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Empty state -->
+                <div id="emptyState" class="text-center text-muted" style="display: none;">
+                    <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
+                    <p>No loan applications found for the selected status.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        let currentStatus = 'pending';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLoanStatistics();
+            showLoans('pending');
+        });
+        
+        function loadLoanStatistics() {
+            fetch('/admin/loans/api/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('pendingCount').textContent = data.pendingLoans || 0;
+                document.getElementById('approvedCount').textContent = data.approvedLoans || 0;
+                document.getElementById('rejectedCount').textContent = data.rejectedLoans || 0;
+            })
+            .catch(error => {
+                console.error('Error loading statistics:', error);
+            });
+        }
+        
+        function showLoans(status) {
+            currentStatus = status;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(status + 'Tab').classList.add('active');
+            
+            document.querySelectorAll('.loan-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(status + 'Loans').classList.add('active');
+            
+            loadLoans(status);
+        }
+        
+        function loadLoans(status) {
+            const statusUpper = status.toUpperCase();
+            const tableBody = document.getElementById(status + 'LoansBody');
+            
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center">Loading...</td></tr>';
+            
+            fetch(`/admin/loans/api/status/${statusUpper}`)
+            .then(response => response.json())
+            .then(loans => {
+                if (loans.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No ' + status + ' loans found</td></tr>';
+                    return;
+                }
+                
+                tableBody.innerHTML = '';
+                loans.forEach(loan => {
+                    const row = createLoanRow(loan, status);
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading loans:', error);
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading loans</td></tr>';
+            });
+        }
+        
+        function createLoanRow(loan, status) {
+            const row = document.createElement('tr');
+            const loanId = loan.loanId || loan.id;
+            const loanAmount = loan.requestedAmount || loan.loanAmount;
+            
+            if (status === 'pending' || status === 'PENDING') {
+                row.innerHTML = `
+                    <td>${loanId}</td>
+                    <td>${loan.customerName || 'N/A'}</td>
+                    <td>₹${parseFloat(loanAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td><span class="badge badge-info">${loan.loanType}</span></td>
+                    <td class="d-none d-md-table-cell">${loan.purpose || 'N/A'}</td>
+                    <td class="d-none d-lg-table-cell">₹${parseFloat(loan.monthlyIncome || 0).toLocaleString('en-IN')}</td>
+                    <td class="d-none d-md-table-cell">${loan.appliedAt || loan.createdDate || 'N/A'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="/admin/loans/${loanId}" class="btn btn-info btn-sm" title="View Details">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            <button class="btn btn-success btn-sm" onclick="approveLoan(${loanId})" title="Approve Loan">
+                                <i class="fas fa-check"></i> Approve Loan
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="rejectLoan(${loanId})" title="Reject Loan">
+                                <i class="fas fa-times"></i> Reject Loan
+                            </button>
+                        </div>
+                    </td>
+                `;
+            } else if (status === 'approved' || status === 'APPROVED') {
+                row.innerHTML = `
+                    <td>${loanId}</td>
+                    <td>${loan.customerName || 'N/A'}</td>
+                    <td>₹${parseFloat(loanAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td><span class="badge badge-info">${loan.loanType}</span></td>
+                    <td class="d-none d-md-table-cell">${loan.interestRate}%</td>
+                    <td class="d-none d-lg-table-cell">${loan.termMonths} months</td>
+                    <td class="d-none d-md-table-cell">${loan.approvedDate || loan.createdDate || 'N/A'}</td>
+                    <td>
+                        <a href="/admin/loans/${loanId}" class="btn btn-info btn-sm" title="View Details">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </td>
+                `;
+            } else { // rejected
+                row.innerHTML = `
+                    <td>${loanId}</td>
+                    <td>${loan.customerName || 'N/A'}</td>
+                    <td>₹${parseFloat(loanAmount).toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                    <td><span class="badge badge-info">${loan.loanType}</span></td>
+                    <td class="d-none d-md-table-cell">${loan.adminRemarks || loan.remarks || 'No reason provided'}</td>
+                    <td class="d-none d-md-table-cell">${loan.processedAt || loan.createdDate || 'N/A'}</td>
+                    <td>
+                        <a href="/admin/loans/${loanId}" class="btn btn-info btn-sm" title="View Details">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                    </td>
+                `;
+            }
+            
+            return row;
+        }
+        
+        function approveLoan(loanId) {
+            const remarks = prompt('Enter approval remarks (optional):') || 'Loan approved by admin';
+            if (confirm('Are you sure you want to approve this loan?')) {
+                fetch(`/admin/loans/api/approve/${loanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ remarks: remarks })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Loan approved successfully!');
+                        loadLoans(currentStatus);
+                        loadLoanStatistics();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while approving the loan.');
+                });
+            }
+        }
+        
+        function rejectLoan(loanId) {
+            const remarks = prompt('Enter rejection reason:');
+            if (remarks && confirm('Are you sure you want to reject this loan?')) {
+                fetch(`/admin/loans/api/reject/${loanId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ remarks: remarks })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Loan rejected successfully!');
+                        loadLoans(currentStatus);
+                        loadLoanStatistics();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while rejecting the loan.');
+                });
+            }
+        }
+    </script>
+    
+    <style>
+        .loan-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .loan-section {
+            display: none;
+        }
+        
+        .loan-section.active {
+            display: block;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        /* UPDATED: Action buttons styling with text beside icons */
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons .btn {
+            padding: 0.375rem 0.75rem;
+            min-width: auto;
+            white-space: nowrap;
+        }
+        
+        .action-buttons .btn i {
+            margin-right: 0.25rem;
+        }
+        
+        .stat-icon.rejected {
+            background: var(--danger-color);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .loan-tabs {
+                justify-content: center;
+            }
+            
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .tab-btn i {
+                margin-right: 0.25rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                margin: 0.1rem 0;
+                width: 100%;
+            }
+            
+            .table {
+                font-size: 0.875rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .tab-btn span {
+                display: none;
+            }
+            
+            .tab-btn {
+                min-width: auto;
+                padding: 0.75rem;
+            }
+            
+            .admin-container {
+                padding: 0 1rem;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            /* Hide text on very small screens, keep only icons */
+            .action-buttons .btn {
+                padding: 0.375rem 0.5rem;
+            }
+            
+            .action-buttons .btn span {
+                display: none;
+            }
+        }
+        
+        /* Hide/show columns based on screen size */
+        @media (max-width: 992px) {
+            .d-none.d-lg-table-cell {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .d-none.d-md-table-cell {
+                display: none !important;
+            }
+        }
+    </style>
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

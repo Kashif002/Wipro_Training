@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title th:text="${pageTitle}">Customer Messages - MyFin Bank</title>
+    <link href="/css/admin-style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Session validation script temporarily disabled for debugging -->
+    <!-- <script src="/js/session-check.js"></script> -->
+    <script src="/js/admin-security.js"></script>
+    
+</head>
+<body>
+    <div id="alert-container"></div>
+    
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                MyFin Bank
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/admin/customers">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+                <a href="/admin/loans">
+                    <i class="fas fa-file-invoice-dollar"></i> Loans
+                </a>
+                <a href="/admin/chat" class="active">
+                    <i class="fas fa-comments"></i> Messages
+                </a>
+                <a href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+                <a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="admin-container">
+        <div class="dashboard-header">
+            <h1>Customer Messages</h1>
+            <p class="text-muted">Communicate with customers and manage support requests</p>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon customers">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalCustomersCount">0</h3>
+                    <p>Total Customers</p>
+                    <small class="stat-change">With conversations</small>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon messages">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="unreadCustomersCount">0</h3>
+                    <p>Customers with Unread Messages</p>
+                    <small class="stat-change">Need attention</small>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon approved">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalMessagesCount">0</h3>
+                    <p>Total Messages Today</p>
+                    <small class="stat-change">Recent activity</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <div class="chat-container">
+            <!-- Customer List Sidebar -->
+            <div class="chat-sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-users"></i> Recent Conversations</h3>
+                    <div class="search-box">
+                        <input type="text" id="customerSearch" placeholder="Search customers..." class="form-control form-control-sm">
+                    </div>
+                </div>
+                
+                <!-- One conversation per customer -->
+                <div class="customer-section">
+                    <div class="customer-list" id="conversationsList">
+                        <div class="empty-state">
+                            <p class="text-muted">Loading conversations...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Messages Area -->
+            <div class="chat-main">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="selected-customer-info">
+                        <div class="customer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="customer-details">
+                            <div class="customer-name" id="selectedCustomerName">Select a customer</div>
+                            <div class="customer-status" id="selectedCustomerStatus">Choose from sidebar to start chatting</div>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="btn btn-sm btn-outline-primary" onclick="refreshChat()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" id="markAllReadBtn" onclick="markAllAsRead()" title="Mark All as Read" style="display: none;">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages Display Area -->
+                <div class="chat-messages" id="chatMessagesArea">
+                    <div class="welcome-screen">
+                        <div class="welcome-content">
+                            <i class="fas fa-comments fa-4x text-muted mb-3"></i>
+                            <h3>Customer Support Chat</h3>
+                            <p class="text-muted">Select a customer from the sidebar to view their messages and start a conversation</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input Area -->
+                <div class="chat-input-area" id="chatInputArea" style="display: none;">
+                    <div class="message-input-container">
+                        <div class="input-group">
+                            <input type="text" 
+                                   id="messageInput" 
+                                   class="form-control" 
+                                   placeholder="Type your message..."
+                                   disabled>
+                            <button class="btn btn-primary" 
+                                    id="sendMessageBtn" 
+                                    onclick="sendMessage()" 
+                                    disabled>
+                                <i class="fas fa-paper-plane"></i>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Pass server data to JavaScript -->
+    <script th:inline="javascript">
+        // FIXED: Get admin info and pass to frontend
+        const currentAdmin = {
+            name: /*[[${session.adminName ?: 'Admin User'}]]*/ 'Admin User',
+            id: /*[[${session.adminId ?: 1}]]*/ 1
+        };
+        
+        // Server data passed to client
+        const serverData = {
+            recentMessages: /*[[${recentMessages ?: {}}]]*/ [],
+            customersWithUnread: /*[[${customersWithUnread ?: {}}]]*/ [],
+            totalCustomers: /*[[${totalCustomers ?: 0}]]*/ 0,
+            totalMessages: /*[[${totalMessages ?: 0}]]*/ 0
+        };
+    </script>
+    
+    <script>
+        let selectedCustomerId = null;
+        let messagePollingInterval = null;
+        let uniqueConversations = new Map(); // Store unique conversations per customer
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChat();
+            setupEventListeners();
+        });
+        
+        function initializeChat() {
+            loadConversations();
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            document.getElementById('customerSearch').addEventListener('input', filterCustomers);
+        }
+        
+        // FIXED: Load conversations and process them to show one per customer
+        function loadConversations() {
+            fetch('/admin/chat/api/conversations')
+            .then(response => response.json())
+            .then(data => {
+                if (data.conversations) {
+                    processUniqueConversations(data.conversations);
+                } else {
+                    // Fallback: try the recent messages endpoint
+                    loadFromRecentMessages();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading conversations:', error);
+                // Fallback: try the recent messages endpoint
+                loadFromRecentMessages();
+            });
+        }
+        
+        function loadFromRecentMessages() {
+            Promise.all([
+                fetch('/admin/chat/api/recent-messages').then(r => r.json()).catch(() => []),
+                fetch('/admin/chat/api/unread-customers').then(r => r.json()).catch(() => ({ customers: [] }))
+            ])
+            .then(([messages, unreadData]) => {
+                const unreadCustomers = unreadData.customers || [];
+                processUniqueConversations(messages, unreadCustomers);
+            })
+            .catch(error => {
+                console.error('Error loading from recent messages:', error);
+                // Use server data as last resort
+                if (serverData.recentMessages && serverData.recentMessages.length > 0) {
+                    processUniqueConversations(serverData.recentMessages, serverData.customersWithUnread);
+                } else {
+                    document.getElementById('conversationsList').innerHTML = 
+                        '<div class="empty-state"><p class="text-muted">No conversations available</p></div>';
+                }
+            });
+        }
+        
+        // FIXED: Process messages to show only one conversation per customer
+        function processUniqueConversations(messages, unreadCustomers = []) {
+            uniqueConversations.clear();
+            
+            if (!Array.isArray(messages)) {
+                console.warn('Messages is not an array:', messages);
+                messages = [];
+            }
+            
+            // Group messages by customer ID, keeping only the latest per customer
+            messages.forEach(message => {
+                if (!message.customerId) return;
+                
+                const customerId = parseInt(message.customerId);
+                const existingConversation = uniqueConversations.get(customerId);
+                
+                const messageTime = new Date(message.timestamp || Date.now());
+                const existingTime = existingConversation ? new Date(existingConversation.timestamp) : new Date(0);
+                
+                // Keep only the most recent message per customer
+                if (!existingConversation || messageTime > existingTime) {
+                    uniqueConversations.set(customerId, {
+                        customerId: customerId,
+                        customerName: message.customerName || `Customer ${customerId}`,
+                        lastMessage: message.message || '',
+                        timestamp: message.timestamp || new Date().toISOString(),
+                        isRead: message.isRead !== false,
+                        hasUnread: unreadCustomers.includes(customerId)
+                    });
+                }
+            });
+            
+            displayUniqueConversations();
+            updateStatistics();
+        }
+        
+        function displayUniqueConversations() {
+            const conversationsList = document.getElementById('conversationsList');
+            
+            if (uniqueConversations.size === 0) {
+                conversationsList.innerHTML = '<div class="empty-state"><p class="text-muted">No conversations found</p></div>';
+                return;
+            }
+            
+            // Sort conversations by timestamp (most recent first)
+            const sortedConversations = Array.from(uniqueConversations.values())
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            conversationsList.innerHTML = '';
+            
+            sortedConversations.forEach(conversation => {
+                const conversationDiv = document.createElement('div');
+                conversationDiv.className = `customer-item ${conversation.hasUnread ? 'has-unread' : ''}`;
+                conversationDiv.setAttribute('data-customer-id', conversation.customerId);
+                conversationDiv.onclick = () => selectCustomer(conversation.customerId);
+                
+                // Format timestamp for display
+                const formattedTime = conversation.timestamp ? 
+                    new Date(conversation.timestamp).toLocaleString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        month: 'short',
+                        day: 'numeric'
+                    }) : '';
+                
+                conversationDiv.innerHTML = `
+                    <div class="customer-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="customer-info">
+                        <div class="customer-name">${escapeHtml(conversation.customerName)}</div>
+                        <div class="last-message">${escapeHtml(conversation.lastMessage)}</div>
+                        <div class="message-time">${formattedTime}</div>
+                    </div>
+                    ${conversation.hasUnread ? '<div class="read-status"><span class="unread-dot"></span></div>' : ''}
+                `;
+                
+                conversationsList.appendChild(conversationDiv);
+            });
+        }
+        
+        // FIXED: Update statistics with correct counts
+        function updateStatistics() {
+            // Total customers with conversations (unique customers)
+            const totalCustomers = uniqueConversations.size;
+            
+            // Customers with unread messages
+            const unreadCount = Array.from(uniqueConversations.values())
+                .filter(conv => conv.hasUnread).length;
+            
+            // Total messages today (this should come from backend)
+            const totalMessages = serverData.totalMessages || uniqueConversations.size;
+            
+            document.getElementById('totalCustomersCount').textContent = totalCustomers;
+            document.getElementById('unreadCustomersCount').textContent = unreadCount;
+            document.getElementById('totalMessagesCount').textContent = totalMessages;
+        }
+        
+        function selectCustomer(customerId) {
+            selectedCustomerId = parseInt(customerId);
+            
+            // Update UI selection
+            document.querySelectorAll('.customer-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const selectedItem = document.querySelector(`[data-customer-id="${customerId}"]`);
+            if (selectedItem) {
+                selectedItem.classList.add('selected');
+                
+                const customerName = selectedItem.querySelector('.customer-name').textContent;
+                document.getElementById('selectedCustomerName').textContent = customerName;
+                document.getElementById('selectedCustomerStatus').textContent = 'Online';
+            }
+            
+            // Enable chat input
+            document.getElementById('chatInputArea').style.display = 'block';
+            document.getElementById('messageInput').disabled = false;
+            document.getElementById('sendMessageBtn').disabled = false;
+            document.getElementById('markAllReadBtn').style.display = 'inline-block';
+            
+            // Load conversation and mark as read
+            loadConversation(selectedCustomerId);
+            markConversationAsRead(selectedCustomerId);
+            startMessagePolling();
+        }
+        
+        function loadConversation(customerId) {
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.innerHTML = '<div class="loading-messages"><i class="fas fa-spinner fa-spin"></i> Loading messages...</div>';
+            
+            fetch(`/admin/chat/api/conversation/${customerId}`)
+            .then(response => response.json())
+            .then(messages => {
+                displayMessages(messages);
+            })
+            .catch(error => {
+                console.error('Error loading conversation:', error);
+                messagesArea.innerHTML = '<div class="error-messages text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading conversation</div>';
+            });
+        }
+        
+        function displayMessages(messages) {
+            const messagesArea = document.getElementById('chatMessagesArea');
+            messagesArea.innerHTML = '';
+            
+            if (!messages || messages.length === 0) {
+                messagesArea.innerHTML = `
+                    <div class="no-messages">
+                        <i class="fas fa-comment-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No messages yet. Start the conversation!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                
+                // FIXED: Determine sender type and display proper name
+                const isAdmin = message.senderType === 'ADMIN' || message.sender === 'ADMIN' || message.isFromAdmin === true;
+                const senderName = isAdmin ? (message.senderName || currentAdmin.name || 'Admin') : (message.customerName || 'Customer');
+                const messageClass = isAdmin ? 'admin-message' : 'customer-message';
+                
+                messageDiv.className = `message ${messageClass}`;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-header">
+                            <span class="sender-name">${escapeHtml(senderName)}</span>
+                            <span class="message-time">${formatTimestamp(message.timestamp)}</span>
+                        </div>
+                        <div class="message-content">${escapeHtml(message.message || '')}</div>
+                    </div>
+                    <div class="message-avatar">
+                        <i class="fas fa-${isAdmin ? 'user-tie' : 'user'}"></i>
+                    </div>
+                `;
+                
+                messagesArea.appendChild(messageDiv);
+            });
+            
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+        
+        // FIXED: Send message with admin name
+        function sendMessage() {
+            if (!selectedCustomerId) return;
+            
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            const sendBtn = document.getElementById('sendMessageBtn');
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            fetch('/admin/chat/api/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    customerId: selectedCustomerId,
+                    message: message,
+                    senderName: currentAdmin.name, // FIXED: Include admin name
+                    senderId: currentAdmin.id,
+                    senderType: 'ADMIN'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageInput.value = '';
+                    loadConversation(selectedCustomerId);
+                    
+                    // Update conversation in sidebar with new message
+                    updateConversationInSidebar(selectedCustomerId, message);
+                    
+                    showNotification('Message sent successfully!', 'success');
+                } else {
+                    showNotification('Error sending message: ' + (data.error || 'Unknown error'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to send message', 'error');
+            })
+            .finally(() => {
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+                messageInput.focus();
+            });
+        }
+        
+        function updateConversationInSidebar(customerId, newMessage) {
+            const conversation = uniqueConversations.get(customerId);
+            if (conversation) {
+                conversation.lastMessage = newMessage;
+                conversation.timestamp = new Date().toISOString();
+                conversation.isRead = true; // Admin sent it, so it's read
+                displayUniqueConversations(); // Refresh the sidebar
+            }
+        }
+        
+        function markConversationAsRead(customerId) {
+            fetch(`/admin/chat/api/mark-read/${customerId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const customerItem = document.querySelector(`[data-customer-id="${customerId}"]`);
+                    if (customerItem) {
+                        customerItem.classList.remove('has-unread');
+                        const unreadIndicators = customerItem.querySelectorAll('.unread-dot');
+                        unreadIndicators.forEach(indicator => indicator.remove());
+                    }
+                    
+                    // Update conversation data
+                    const conversation = uniqueConversations.get(customerId);
+                    if (conversation) {
+                        conversation.isRead = true;
+                        conversation.hasUnread = false;
+                        updateStatistics(); // Update the counts
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error marking as read:', error);
+            });
+        }
+        
+        function markAllAsRead() {
+            if (!selectedCustomerId) return;
+            
+            markConversationAsRead(selectedCustomerId);
+            showNotification('All messages marked as read', 'success');
+        }
+        
+        function filterCustomers() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase();
+            const customerItems = document.querySelectorAll('.customer-item');
+            
+            customerItems.forEach(item => {
+                const customerName = item.querySelector('.customer-name').textContent.toLowerCase();
+                const lastMessage = item.querySelector('.last-message');
+                const messageText = lastMessage ? lastMessage.textContent.toLowerCase() : '';
+                
+                if (customerName.includes(searchTerm) || messageText.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function refreshChat() {
+            if (selectedCustomerId) {
+                loadConversation(selectedCustomerId);
+            }
+            loadConversations(); // Refresh conversations list
+        }
+        
+        function startMessagePolling() {
+            if (messagePollingInterval) {
+                clearInterval(messagePollingInterval);
+            }
+            
+            messagePollingInterval = setInterval(() => {
+                if (selectedCustomerId) {
+                    loadConversation(selectedCustomerId);
+                }
+                loadConversations(); // Also refresh conversations list
+            }, 10000);
+        }
+        
+        // Utility functions
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+        
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '';
+            try {
+                return new Date(timestamp).toLocaleString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return timestamp;
+            }
+        }
+        
+        function showNotification(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 3000);
+        }
+    </script>
+    
+    <style>
+        .chat-container {
+            display: flex;
+            height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        
+        .chat-sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .search-box input {
+            width: 100%;
+        }
+        
+        .customer-section {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .customer-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .customer-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .customer-item:hover {
+            background: #e9ecef;
+        }
+        
+        .customer-item.selected {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .customer-item.has-unread {
+            background: #fff3cd;
+        }
+        
+        .customer-item.selected.has-unread {
+            background: var(--primary-color);
+        }
+        
+        .customer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .customer-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .customer-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .last-message {
+            color: #6c757d;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .message-time {
+            color: #6c757d;
+            font-size: 0.75rem;
+        }
+        
+        .customer-item.selected .last-message,
+        .customer-item.selected .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .read-status {
+            margin-left: 0.5rem;
+        }
+        
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger-color);
+            display: inline-block;
+        }
+        
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .selected-customer-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .selected-customer-info .customer-avatar {
+            margin-right: 1rem;
+        }
+        
+        .customer-details .customer-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .customer-details .customer-status {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .welcome-screen, .no-messages {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        
+        .welcome-content {
+            color: #6c757d;
+        }
+        
+        .loading-messages, .error-messages {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: flex-end;
+        }
+        
+        .message.customer-message {
+            flex-direction: row;
+        }
+        
+        .message.admin-message {
+            flex-direction: row-reverse;
+        }
+        
+        .message-bubble {
+            max-width: 70%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .message.customer-message .message-bubble {
+            background: white;
+            border-bottom-left-radius: 0.25rem;
+            margin-left: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .message.admin-message .message-bubble {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+            margin-right: 0.5rem;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sender-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        
+        .message-content {
+            line-height: 1.4;
+        }
+        
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #6c757d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            background: white;
+        }
+        
+        .message-input-container .input-group {
+            display: flex;
+        }
+        
+        .message-input-container .form-control {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+        }
+        
+        .message-input-container .btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+        
+        .empty-state {
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: calc(100vh - 200px);
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                height: 250px;
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .customer-list {
+                max-height: 180px;
+            }
+            
+            .chat-main {
+                height: calc(100% - 250px);
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Admin Footer -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 MyFin Bank. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

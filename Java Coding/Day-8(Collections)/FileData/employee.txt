@@ -1,0 +1,1 @@
+Employee [id=101, name=Kashif, salary=24750.0]

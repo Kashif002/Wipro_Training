@@ -1,0 +1,248 @@
+html {
+  height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #f5b97a;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f5b97a;
+  padding: 10px 20px;
+  border-bottom: 15px solid #edeaea;
+  position: sticky;
+  top: 0;
+  z-index: 1000;   /* keeps it above content */
+}
+
+
+.logo {
+  height: 80px;
+  width: 80px;
+  border-radius: 50%;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links li a {
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.main-content {
+  padding: 60px;
+  text-align: center;
+}
+
+.main-content h1{
+  font-size: 2.5em;
+  color: brown;
+  text-decoration: underline;
+}
+
+.main-content p{
+  font-size: 1.5em;
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  background-color: #f5b97a;
+}
+
+.student-image {
+  width: 220px;
+  height: 150px;
+  border: 1px solid #000;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  background-color: white;
+  margin: 0 auto 50px auto;
+  position: relative;
+  left: -600px;
+}
+
+.student-image img {
+  width: 220px;
+  height: 150px;
+  border-radius: 100%; 
+  object-fit: cover; 
+  object-position: center; 
+}
+
+.student-info {
+  font-size: 16px;
+  position: relative;
+  right: -350px;
+}
+
+.student-info h2 {
+  font-size: 30px;
+  text-align: left;
+  color: brown;
+  text-decoration: underline;
+}
+
+.student-info p {
+  font-size: 18px;
+  text-align: left;
+}
+
+.table {
+  background-color: white;
+  border: 2px solid black;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table th, .table td {
+  border: 1px solid black;
+  padding: 10px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.table thead {
+  background-color: rgb(20, 20, 130);
+  color: white;
+}
+
+.table-heading {
+  font-size: 40px;
+  color: brown;
+  text-decoration: underline;
+}
+
+
+.table tbody{
+  border: 2px #000;
+}
+
+/* Mobile friendly*/
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: row;       
+    justify-content: space-between;
+    padding: 5px 10px;
+  }
+
+  .logo {
+    height: 50px;
+    width: 50px;
+  }
+
+  .nav-links {
+    flex-direction: row;       
+    gap: 10px;                 
+    flex-wrap: wrap;          
+    justify-content: flex-end;
+  }
+
+  .nav-links li a {
+    font-size: 14px;           
+  }
+
+  .student-image {
+    left: 0;
+    margin: 0 auto 20px auto;
+    position: relative;
+    width: 150px;
+    height: 150px;
+  }
+
+  .student-info {
+    right: 0;
+    text-align: center;
+    position: relative;
+    margin-top: 10px;
+  }
+
+  .student-info h2 {
+    font-size: 22px;
+  }
+
+  .student-info p {
+    font-size: 14px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table tr {
+    display: block;
+    margin-bottom: 15px;
+    border: 2px solid black;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .table td {
+    display: block;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .table td:first-child {
+    background-color:  rgb(20, 20, 130); /* Blue color for day cells */
+    color: white;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .table td:last-child {
+    border-bottom: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  /* Ensure Monday row is visible */
+  .table tbody tr:first-child {
+    display: block;
+  }
+}
+

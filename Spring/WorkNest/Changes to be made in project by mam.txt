@@ -1,0 +1,72 @@
+1. Admin can also assign to team members. It can be assigned to multiple user.
+2. Admin can assign the task to same team member when some employee is on leave.
+
+3. Add header and footer. 
+4. Add Navbar.
+
+5. Admin can make groups as well of existing member in DB
+
+
+src/
+├── main/
+│   ├── java/
+│   │   └── com/wipro/
+│   │       ├── WorkNestApplication.java
+│   │       ├── config/
+│   │       │   ├── SecurityConfig.java
+│   │       ├── controller/
+│   │       │   ├── AuthController.java
+│   │       │   ├── AdminController.java
+│   │       │   ├── UserController.java
+│   │       ├── dao/
+│   │       │   ├── LoginDAO.java
+│   │       │   ├── JwtResponseDAO.java
+│   │       │   ├── UserDAO.java
+│   │       │   ├── TaskDAO.java
+│   │       │   ├── CommentDAO.java
+│   │       ├── entity/
+│   │       │   ├── User.java
+│   │       │   ├── Task.java
+│   │       │   ├── Comment.java
+│   │       │   ├── Group.java
+│   │       ├── repository/
+│   │       │   ├── UserRepository.java
+│   │       │   ├── TaskRepository.java
+│   │       │   ├── CommentRepository.java
+│   │       │   ├── GroupRepository.java
+│   │       ├── service/
+│   │       │   ├── UserService.java
+│   │       │   ├── UserServiceImpl.java
+│   │       │   ├── TaskService.java
+│   │       │   ├── TaskServiceImpl.java
+│   │       │   ├── CommentService.java
+│   │       │   ├── CommentServiceImpl.java
+│   │       │   ├── GroupService.java
+│   │       │   ├── GroupServiceImpl.java
+│   │       │   ├── JwtService.java
+│   │       │   ├── UserDetailsServiceImpl.java
+│   │       ├── security/
+│   │       │   ├── JwtAuthenticationFilter.java
+│   │       ├── resources/
+│   │       │   ├── application.properties
+│   │       │   ├── templates/
+│   │       │   │   ├── fragments/
+│   │       │   │   │   ├── header.html
+│   │       │   │   │   ├── footer.html
+│   │       │   │   │   ├── navbar.html
+│   │       │   │   ├── index.html
+│   │       │   │   ├── login.html
+│   │       │   │   ├── register.html
+│   │       │   │   ├── adminDashboard.html
+│   │       │   │   ├── adminTasks.html
+│   │       │   │   ├── adminComments.html
+│   │       │   │   ├── adminUsers.html
+│   │       │   │   ├── userDashboard.html
+│   │       │   │   ├── userTasks.html
+│   │       │   │   ├── taskComments.html
+│   │       │   ├── static/
+│   │       │   │   ├── css/
+│   │       │   │   │   ├── styles.css
+│   │       │   │   ├── js/
+│   │       │   │   │   ├── scripts.js
+├── pom.xml
