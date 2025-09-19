@@ -2,8 +2,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: myfinbank.alerts@gmail.com
-    password: tmig qajb sclg cyqb
+    username: "Your Bank Email"
+    password: "Your App Password"
     properties:
       mail:
         smtp:
