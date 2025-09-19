@@ -73,8 +73,8 @@ Update your `application-dev.yml` in both services:
 spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/myfin_bank  # Changed from myfinbank
-    username: root
-    password: My@SQL*%$23
+    username: Your DB Username
+    password: Your DB Password
 ```
 
 ### Step 3: Start Services
@@ -109,15 +109,15 @@ spring:
 ## 🚀 Quick Commands
 
 ```bash
-# Check if database is created
-mysql -u root -pMy@SQL*%$23 -e "USE myfin_bank; SHOW TABLES;"
+# Check if the database is created
+mysql -u root -p"password" -e "USE myfin_bank; SHOW TABLES;" //Replace password with your DB Password("remove double quotes")
 
 # Verify admin users
-mysql -u root -pMy@SQL*%$23 -e "USE myfin_bank; SELECT email, first_name, last_name FROM admins;"
+mysql -u root -p"password" -e "USE myfin_bank; SELECT email, first_name, last_name FROM admins;"
 
 # Verify customer users
-mysql -u root -pMy@SQL*%$23 -e "USE myfin_bank; SELECT email, first_name, last_name, active FROM customers;"
+mysql -u root -p"password" -e "USE myfin_bank; SELECT email, first_name, last_name, active FROM customers;"
 
 # Check loan applications
-mysql -u root -pMy@SQL*%$23 -e "USE myfin_bank; SELECT loan_id, status, requested_amount FROM loans;"
+mysql -u root -p"password" -e "USE myfin_bank; SELECT loan_id, status, requested_amount FROM loans;"
 ```
